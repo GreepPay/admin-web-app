@@ -1,108 +1,106 @@
 <template>
   <aside
-    class="w-64 border-r border-gray-200 bg-white h-screen hidden md:block"
+    class="w-64 relative border-r border-light-gray-two shadow-soft bg-white h-screen hidden md:flex flex-col"
     :class="{ hidden: !isSidebarOpen && isMobile }"
   >
-    <div class="p-4 border-b border-gray-200">
-      <div class="flex items-center">
-        <div class="bg-primary rounded-full p-2 mr-2">
-          <span class="text-white text-xl">⚡</span>
-        </div>
-        <h1 class="text-primary text-xl font-bold tracking-tight">GREEP</h1>
-      </div>
+    <!-- LOGO (Top) -->
+    <div
+      class="p-4 border-b border-light-gray-two sticky top-0 h-[76px] bg-white flex items-center z-10"
+    >
+      <img src="/images/greep-logo.svg" />
     </div>
 
-    <div class="p-4">
+    <!-- MIDDLE SECTION (Scrollable) -->
+    <div class="flex-1 overflow-y-auto space-y-5 py-6">
       <div
         v-for="(section, sectionIndex) in sidebarSections"
         :key="sectionIndex"
-        class="mb-6"
+        class="space-y-2 px-4 pb-6"
+        :class="
+          sectionIndex < sidebarSections.length -1 &&
+          'border-b border-light-gray-two'
+        "
       >
-        <h2 class="text-xs text-gray-500 font-medium mb-2 uppercase">
+        <h2 class="text-base text-light-black py-2 px-2 font-medium">
           {{ section.title }}
         </h2>
-        <ul>
+
+        <ul class="space-y-2">
           <li v-for="(item, itemIndex) in section.items" :key="itemIndex">
-            <a
-              href="#"
-              class="flex items-center py-2 px-2 rounded-lg text-sm"
+            <span
+              class="flex items-center cursor-pointer py-2 px-2 rounded-lg text-sm space-x-2"
               :class="
-                item.active
-                  ? 'text-primary bg-primary/5'
-                  : 'text-gray-700 hover:bg-gray-100'
+                getActiveTab(item.route)
+                  ? 'text-black font-semibold'
+                  : 'text-very-light-gray hover:bg-light-gray-two'
               "
+              @click="Logic.Common.GoToRoute(item.route)"
             >
-              <!-- <span class="mr-2">
-                <component :is="item.icon" />
-              </span> -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-              <span>{{ item.title }}</span>
-            </a>
+              <app-icon
+                :name="
+                  getActiveTab(item.route)
+                    ? `${item.icon}-active`
+                    : `${item.icon}-inactive`
+                "
+                custom-class="h-6"
+              />
+              <span> {{ item.title }} </span>
+            </span>
           </li>
         </ul>
       </div>
+    </div>
 
-      <div class="mt-auto">
-        <button
-          class="flex items-center text-red-500 mt-10 px-2 py-2 w-full text-sm hover:bg-gray-100 rounded-lg"
-        >
-          <LogoutIcon class="mr-2" />
-          <span>Log out</span>
-        </button>
-      </div>
+    <!-- LOGOUT (Bottom) -->
+    <div
+      class="h-[76px] border-t border-light-gray-two bg-white flex items-center px-6"
+    >
+      <button class="space-x-2 flex items-center w-full">
+        <app-icon name="logout" custom-class="h-6 text-sm" />
+        <span>Log out</span>
+      </button>
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
-  import { inject, ref, computed } from "vue"
-  // import { DashboardIcon, PieChartIcon, RepeatIcon, WalletIcon, StoreIcon, UserIcon, ShieldIcon, CheckSquareIcon, ArrowDownCircleIcon, LogoutIcon } from './icons';
+  import { inject, ref, computed, onMounted } from "vue"
+  import { Logic } from "@greep/logic"
+  import { AppIcon } from "@greep/ui-components"
+  import { useRoute } from "vue-router"
 
   const isSidebarOpen = inject("isSidebarOpen", ref(true))
   const isMobile = ref(window.innerWidth < 768)
 
-  // Handle resize events
-  window.addEventListener("resize", () => {
-    isMobile.value = window.innerWidth < 768
-  })
+  const getActiveTab = (route: string) => useRoute().fullPath.includes(route)
 
   const sidebarSections = ref([
     {
       title: "General",
       items: [
-        { title: "Dashboard", /*icon: DashboardIcon,*/ active: true },
-        { title: "Analytics", /*icon: PieChartIcon,*/ active: false },
-        { title: "Transactions", /*icon: RepeatIcon,*/ active: false },
-        { title: "Wallets", /*icon: WalletIcon,*/ active: false },
+        { title: "Dashboards", icon: "dashboards", route: "/dashboards" },
+        { title: "Analytics", icon: "graph", route: "/analytics" },
+        { title: "Transactions", icon: "trend-up", route: "/transactions" },
+        { title: "Wallets", icon: "wallet-3", route: "/wallets" },
       ],
     },
     {
       title: "Accounts",
       items: [
-        { title: "Merchant", /*icon: StoreIcon,*/ active: false },
-        { title: "Customer", /*icon: UserIcon,*/ active: false },
-        { title: "Admin", /*icon: ShieldIcon,*/ active: false },
+        { title: "Merchant", icon: "building", route: "/merchants" },
+        { title: "Customer", icon: "user", route: "/customers" },
+        { title: "Admin", icon: "shield-security", route: "/admin" },
       ],
     },
     {
       title: "Merchant",
       items: [
-        { title: "Verification", /*icon: CheckSquareIcon,*/ active: false },
-        { title: "Withdrawal", /*icon: ArrowDownCircleIcon,*/ active: false },
+        {
+          title: "Verification",
+          icon: "personal-card",
+          route: "/verification",
+        },
+        { title: "Withdrawal", icon: "money-recieve", route: "/withdrawal" },
       ],
     },
   ])

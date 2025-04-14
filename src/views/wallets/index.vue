@@ -3,9 +3,9 @@
     <div class="bg-white border rounded-lg box-shadow">
       <div class="flex justify-between items-center h-16 border-b">
         <h2
-          class="text-lg flex items-center justify-center px-6 font-medium border-r h-full i"
+          class="flex-1 text-lg flex items-center px-6 font-medium border-r h-full i"
         >
-          Merchants
+          Wallets
         </h2>
 
         <div class="flex flex-1 items-center space-x-3 border-r px-6 h-full">
@@ -53,8 +53,8 @@
         </div>
       </div>
 
-      <MerchantTable
-        :merchants="filteredMerchants"
+      <WalletsTable
+        :wallets="filteredWallets"
         :currentPage="currentPage"
         :itemsPerPage="itemsPerPage"
         @suspend="suspendMerchant"
@@ -67,99 +67,88 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted } from "vue"
-  import MerchantTable from "../components/MerchantTable.vue"
+  import WalletsTable from "../../components/WalletsTable.vue"
   import { AppIcon } from "@greep/ui-components"
 
   interface Merchant {
     id: number
     name: string
     avatar: string
-    joinedDate: string
-
-    joinedTime: string
+    type: string
+    balance?: string
     status: "active" | "suspended"
   }
 
   // Sample merchant data
-  const merchants = ref<Merchant[]>([
+  const wallets = ref<Merchant[]>([
     {
       id: 1,
       name: "Arlene McCoy",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Customer",
       status: "active",
     },
     {
       id: 2,
       name: "Floyd Miles",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Customer",
       status: "suspended",
     },
     {
       id: 3,
       name: "Ralph Edwards",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Customer",
       status: "active",
     },
     {
       id: 4,
       name: "Jerome Bell",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Customer",
       status: "suspended",
     },
     {
       id: 5,
       name: "Eleanor Pena",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Merchant",
       status: "suspended",
     },
     {
       id: 6,
       name: "Sadie Thomas",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Merchant",
       status: "active",
     },
     {
       id: 7,
       name: "Cameron Williamson",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Customer",
       status: "active",
     },
     {
       id: 8,
       name: "Kristin Watson",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Customer",
       status: "active",
     },
     {
       id: 9,
       name: "Mcrory Adams",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Customer",
       status: "active",
     },
     {
       id: 10,
       name: "Stalline Dre",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
+      type: "Customer",
       status: "active",
     },
   ])
@@ -167,14 +156,14 @@
   const searchQuery = ref("")
   const currentPage = ref(1)
   const itemsPerPage = ref(10)
-  const totalItems = ref(50) // Total number of merchants
+  const totalItems = ref(50) // Total number of wallets
 
-  // Filter merchants based on search query
-  const filteredMerchants = computed(() => {
-    if (!searchQuery.value) return merchants.value
+  // Filter wallets based on search query
+  const filteredWallets = computed(() => {
+    if (!searchQuery.value) return wallets.value
 
     const query = searchQuery.value.toLowerCase()
-    return merchants.value.filter((merchant) =>
+    return wallets.value.filter((merchant) =>
       merchant.name.toLowerCase().includes(query)
     )
   })
@@ -209,20 +198,20 @@
 
   // Methods for handling merchant actions
   const suspendMerchant = (merchantId: number) => {
-    const merchant = merchants.value.find((m) => m.id === merchantId)
+    const merchant = wallets.value.find((m) => m.id === merchantId)
     if (merchant) {
       merchant.status = "suspended"
     }
   }
 
   const restoreMerchant = (merchantId: number) => {
-    const merchant = merchants.value.find((m) => m.id === merchantId)
+    const merchant = wallets.value.find((m) => m.id === merchantId)
     if (merchant) {
       merchant.status = "active"
     }
   }
 
   const deleteMerchant = (merchantId: number) => {
-    merchants.value = merchants.value.filter((m) => m.id !== merchantId)
+    wallets.value = wallets.value.filter((m) => m.id !== merchantId)
   }
 </script>

@@ -1,7 +1,8 @@
 import { createApp } from "vue"
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router"
-import routes from "./router/index" 
+import routes from "./router/index"
 import "./assets/styles/index.css"
+import { Logic } from "@greep/logic"
 
 import App from "./App.vue"
 
@@ -14,21 +15,16 @@ routes.then((routes) => {
     routes: routes.filter((route) => route !== null) as RouteRecordRaw[],
   })
 
-  //   router.beforeEach((to, from, next) => {
-  //     const toRouter: any = to
-  //     const fromRouter: any = from
-  //     return Logic.Common.preFetchRouteData(toRouter, next, fromRouter)
-  //   })
+  router.beforeEach((to, from, next) => {
+    const toRouter: any = to
+    const fromRouter: any = from
+    return Logic.Common.preFetchRouteData(toRouter, next, fromRouter)
+  })
 
   const app = createApp(App)
-    // .use(IonicVue, {
-    //   rippleEffect: false,
-    //   scrollPadding: false,
-    // })
     .component("dashboard-layout", DashboardLayout)
     .use(router)
 
   app.mount("#app")
 })
-
-// createApp(App).mount('#app')
+ 

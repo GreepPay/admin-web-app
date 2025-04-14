@@ -20,18 +20,13 @@
         :metrics="transactionMetrics"
         class="mt-5"
       />
-    </div> 
+    </div>
   </dashboard-layout>
 </template>
 
 <script setup lang="ts">
   import { ref } from "vue"
-  import {
-    Sidebar,
-    OverviewSection,
-    DashboardHeader,
-    SidebarProvider,
-  } from "../components/Layouts/index.ts"
+  import { OverviewSection } from "../components/Layouts/index.ts"
 
   type Metric = {
     label: string

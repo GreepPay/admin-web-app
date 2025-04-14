@@ -1,75 +1,81 @@
 <template>
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold">Merchants</h2>
-      <div class="relative">
-        <input
-          type="text"
-          placeholder="Search..."
-          v-model="searchQuery"
-          class="pl-10 pr-4 py-2 border rounded-lg w-[300px] focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-        <div
-          class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+  <dashboard-layout>
+    <div class="bg-white border rounded-lg box-shadow">
+      <div class="flex justify-between items-center h-16 border-b">
+        <h2
+          class="text-lg flex items-center justify-center px-6 font-medium border-r h-full i"
         >
-          <SearchIcon />
+     Verify Merchants
+        </h2>
+
+        <div class="flex flex-1 items-center space-x-3 border-r px-6 h-full">
+          <app-icon name="search" />
+          <input
+            type="search"
+            placeholder="Search..."
+            v-model="searchQuery"
+            class="py-2 w-full border-none outline-none focus:outline-none focus:border-none"
+          />
+        </div>
+
+        <div class="flex justify-between items-center px-3">
+          <div class="text-sm text-gray-500">
+            {{ paginationText }}
+          </div>
+
+          <div class="flex space-x-2 items-center">
+            <button
+              @click="prevPage"
+              :disabled="currentPage === 1"
+              class="p-2 rounded-md disabled:opacity-50"
+              :class="
+                currentPage === 1
+                  ? 'text-gray-300'
+                  : 'text-gray-700 hover:bg-gray-100'
+              "
+            >
+              <app-icon name="alt-arrow-left" custom-class="h-4" />
+            </button>
+
+            <p class="w-[1px] h-5 bg-light-gray-two"></p>
+
+            <button
+              @click="nextPage"
+              :disabled="isLastPage"
+              class="p-2 disabled:opacity-50"
+              :class="
+                isLastPage ? 'text-gray-300' : 'text-gray-700 hover:bg-gray-100'
+              "
+            >
+              <app-icon name="alt-arrow-right" custom-class="h-5  " />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <MerchantTable
-      :merchants="filteredMerchants"
-      :currentPage="currentPage"
-      :itemsPerPage="itemsPerPage"
-      @suspend="suspendMerchant"
-      @restore="restoreMerchant"
-      @delete="deleteMerchant"
-    />
-
-    <div class="flex justify-between items-center mt-4">
-      <div class="text-sm text-gray-500">
-        {{ paginationText }}
-      </div>
-      <div class="flex space-x-2">
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 1"
-          class="p-2 rounded-md border disabled:opacity-50"
-          :class="
-            currentPage === 1
-              ? 'text-gray-300'
-              : 'text-gray-700 hover:bg-gray-100'
-          "
-        >
-          <!-- <ChevronLeftIcon /> -->
-        </button>
-        <button
-          @click="nextPage"
-          :disabled="isLastPage"
-          class="p-2 rounded-md border disabled:opacity-50"
-          :class="
-            isLastPage ? 'text-gray-300' : 'text-gray-700 hover:bg-gray-100'
-          "
-        >
-          <!-- <ChevronRightIcon /> -->
-        </button>
-      </div>
+      <VerificationTable
+        :merchants="filteredMerchants"
+        :currentPage="currentPage"
+        :itemsPerPage="itemsPerPage"
+        @suspend="suspendMerchant"
+        @restore="restoreMerchant"
+        @delete="deleteMerchant"
+      />
     </div>
-  </div>
+  </dashboard-layout>
 </template>
 
 <script setup lang="ts">
   import { ref, computed, onMounted } from "vue"
-  import MerchantTable from "../components/MerchantTable.vue"
-  // import SearchIcon from '../icons/SearchIcon.vue';
-  // import ChevronLeftIcon from '../icons/ChevronLeftIcon.vue';
-  // import ChevronRightIcon from '../icons/ChevronRightIcon.vue';
+  import VerificationTable from "../components/VerificationTable.vue"
+  import { AppIcon } from "@greep/ui-components"
 
   interface Merchant {
     id: number
     name: string
     avatar: string
     joinedDate: string
+
     joinedTime: string
     status: "active" | "suspended"
   }

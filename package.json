@@ -1,5 +1,5 @@
 {
-  "name": "admin-web-app",
+  "name": "greep-admin-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,6 +14,8 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@greep/logic": "file:../logic",
+    "@greep/ui-components": "file:../uicomponents",
     "@tailwindcss/postcss": "^4.1.3",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
@@ -23,5 +25,6 @@
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
     "vue-tsc": "^2.2.4"
-  }
+  },
+  "description": "Admin app for a project"
 }

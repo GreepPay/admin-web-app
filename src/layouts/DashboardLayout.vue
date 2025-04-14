@@ -13,8 +13,9 @@
 </template>
 
 <script lang="ts">
+  import { Logic } from "@greep/logic"
   import { ref, defineComponent } from "vue"
-  import { useRouter } from "vue-router"
+  import { useRoute, useRouter } from "vue-router"
   import {
     Sidebar,
     OverviewSection,
@@ -27,8 +28,13 @@
     props: {},
     name: "DashboardLayout",
     setup() {
-      const router = useRouter()
+      const router: any = useRouter()
+      const route: any = useRoute()
       const selectedTab = ref("")
+
+      // Set routers
+      Logic.Common.SetRouter(router)
+      Logic.Common.SetRoute(route)
 
       // const tabIsActive = (tabName: string) => {
       //   const mainName = tabName;
