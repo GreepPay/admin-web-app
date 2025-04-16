@@ -1,39 +1,61 @@
 <template>
   <dashboard-layout>
     <AppTableContainer>
-      <AppTableHeader rightSideClass="flex-1">
+      <AppTableHeader rightSideClass="flex-1 " titleClass="flex-1">
         <template #title>
-          <div class="flex items-center space-x-4">
-            <h2
-              class="text-lg flex items-center justify-center px-2 font-medium h-full"
+          <div
+            role="button"
+            class="flex items-center space-x-2 w-fit cursor-pointer"
+            @click="Logic.Common.GoToRoute('/wallets')"
+          >
+            <app-icon name="arrow-left-2" />
+            <span
+              class="text-base flex items-center justify-center font-medium h-full"
             >
-              Wallets
-            </h2>
-
-            <app-tabs :tabs="tabs" v-model:activeTab="activeTab" />
+              Wallets History
+            </span>
           </div>
         </template>
 
-        <div class="flex-1 flex items-center">
-          <div class="flex-1 border-r px-4 h-full border-r flex items-center">
+        <div class="flex-1 flex items-center h-full">
+          <div class="flex-1 flex items-center px-6 space-x-3 border-r">
+            <img
+              src="https://randomuser.me/api/portraits/men/32.jpg"
+              class="w-9 h-9 rounded-full"
+              alt="User avatar"
+            />
+            <h3 class="font-medium text-black">Daniel Script</h3>
+          </div>
+
+          <div class="flex-1 flex items-center px-6 space-x-3">
+            <p class="font-normal text-black">Wallet Balnce</p>
+            <p class="font-bold text-black">$2,000.00</p>
+          </div>
+        </div>
+      </AppTableHeader>
+
+      <!-- search and pagination -->
+      <AppTableHeader titleClass="flex-1 !py-0 !px-0">
+        <template #title>
+          <div>
             <app-search
               placeholder="Search..."
               @update:search="searchQuery = $event"
             />
           </div>
+        </template>
 
-          <div class="h-full px-6">
-            <AppPagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
-              @update:page="handlePageChange"
-            />
-          </div>
+        <div class="h-full px-6">
+          <AppPagination
+            :current-page="currentPage"
+            :items-per-page="10"
+            :total-items="125"
+            @update:page="handlePageChange"
+          />
         </div>
       </AppTableHeader>
 
-      <AppWalletTable
+      <AppWalletHistoryTable
         :users="filteredUsers"
         @see-history="seeHistory"
         @freeze="freezeUser"
@@ -71,7 +93,7 @@
 <script setup lang="ts">
   import { ref, computed, onMounted } from "vue"
   import {
-    AppWalletTable,
+    AppWalletHistoryTable,
     AppDropdown,
     AppTableHeader,
     AppStatCard,
@@ -149,7 +171,7 @@
   const seeHistory = (id: string) => {
     console.log(id)
 
-    Logic.Common.GoToRoute(`/wallets/history`)
+    // Logic.Common.GoToRoute(`/wallets/${id}`)
   }
 
   // Methods for handling merchant actions

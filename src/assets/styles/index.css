@@ -61,6 +61,8 @@
   .border-t,
   .border-l,
   .border-b,
+  .border-x,
+  .border-y,
   ::before,
   ::after,
   ::backdrop,

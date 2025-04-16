@@ -1,27 +1,5 @@
 <template>
-  <dashboard-layout>
-    <div>
-      <OverviewSection title="General Overview" :metrics="generalMetrics" />
-
-      <OverviewSection
-        title="Merchant Overview"
-        :metrics="merchantMetrics"
-        class="mt-5"
-      />
-
-      <OverviewSection
-        title="Customer Overview"
-        :metrics="customerMetrics"
-        class="mt-5"
-      />
-
-      <OverviewSection
-        title="Transaction Overview"
-        :metrics="transactionMetrics"
-        class="mt-5"
-      />
-    </div>
-  </dashboard-layout>
+  <div>Login Page</div>
 </template>
 
 <script setup lang="ts">

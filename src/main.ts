@@ -27,4 +27,3 @@ routes.then((routes) => {
 
   app.mount("#app")
 })
- 

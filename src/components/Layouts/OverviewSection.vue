@@ -1,15 +1,26 @@
 <template>
-  <div :class="['border border-light-gray-two rounded-lg', className]">
-    <div class="flex justify-between items-center border-b border-gray-200">
+  <div :class="['border border-light-gray-two rounded-lg relative', className]">
+    <!-- <div
+      class="relative flex justify-between items-center border-b border-gray-200 h-full"
+    >
       <h2 class="text-lg py-4 px-6 font-medium flex-1 border-r">{{ title }}</h2>
 
-      <button
-        class="text-sm space-x-2 text-gray-500 py-4 px-6 flex items-center"
-      >
-        <span> All time </span>
-        <app-icon name="arrow-down" custom-class="h-5" />
-      </button>
-    </div>
+      <AppDropdown
+        v-model="selectedRole"
+        :options="roleOptions"
+        placeholder="Assign role"
+      />
+    </div> -->
+
+ 
+
+    <AppTableHeader title="Merchants" class="!h-fit">
+      <AppDropdown
+        v-model="selectedRole"
+        :options="roleOptions"
+        placeholder="Assign role"
+      />
+    </AppTableHeader>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
       <MetricCard
@@ -26,9 +37,9 @@
 </template>
 
 <script setup lang="ts">
-  import { defineProps } from "vue"
+  import { defineProps, ref } from "vue"
   import MetricCard from "./MetricCard.vue"
-  import { AppIcon } from "@greep/ui-components"
+  import { AppIcon, AppDropdown, AppTableHeader } from "@greep/ui-components"
 
   type Metric = {
     label: string
@@ -43,6 +54,7 @@
     className?: string
   }>()
 
+  const isOpen = ref(true)
   const getBgColor = (index: number) => {
     const isEven = index % 2 === 0
     if (props.alternateFromWhite) {
@@ -51,4 +63,11 @@
       return isEven ? "bg-gray-two-40" : "bg-white"
     }
   }
+
+  const selectedRole = ref("admin")
+  const roleOptions = [
+    { label: "Admin", value: "admin" },
+    { label: "Moderator", value: "moderator" },
+    { label: "User", value: "user" },
+  ]
 </script>

@@ -149,7 +149,7 @@
   const seeHistory = (id: string) => {
     console.log(id)
 
-    Logic.Common.GoToRoute(`/wallets/history`)
+    // Logic.Common.GoToRoute(`/wallets/${id}`)
   }
 
   // Methods for handling merchant actions

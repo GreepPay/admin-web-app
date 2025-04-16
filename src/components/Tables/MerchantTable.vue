@@ -1,24 +1,17 @@
 <template>
   <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
+    <!-- <table class="min-w-full divide-y divide-gray-200">
+      <colgroup>
+        <col class="w-1/2" />
+        <col class="w-1/6" />
+        <col class="w-1/6" />
+      </colgroup>
+
       <thead class="bg-white">
         <tr>
-          <th
-            scope="col"
-            class="px-6 py-3 text-left text-sm font-medium text-gray-500"
-          >
-            Name
-          </th>
-          <th
-            scope="col"
-            class="px-6 py-3 text-left text-sm font-medium text-gray-500"
-          >
-            Joined
-          </th>
-          <th
-            scope="col"
-            class="px-6 py-3 text-right text-sm font-medium text-gray-500"
-          >
+          <th class="px-6 py-3 text-left font-medium text-gray-500">Name</th>
+          <th class="px-6 py-3 text-left font-medium text-gray-500">Joined</th>
+          <th class="px-6 py-3 text-right font-medium text-gray-500">
             Actions
           </th>
         </tr>
@@ -27,53 +20,61 @@
       <tbody class="bg-white divide-y divide-gray-200">
         <tr v-for="merchant in displayedMerchants" :key="merchant.id">
           <td class="px-6 py-4 whitespace-nowrap">
-            <div class="flex items-center">
+            <div class="flex items-center space-x-3">
               <img
                 :src="merchant.avatar"
-                class="w-10 h-10 rounded-full mr-3"
+                class="w-10 h-10 rounded-full"
                 alt="Merchant avatar"
               />
+
               <div class="flex items-center space-x-2">
-                <div class="font-medium text-gray-900">{{ merchant.name }}</div>
+                <div class="font-medium text-black">{{ merchant.name }}</div>
                 <div
                   v-if="merchant.status === 'suspended'"
-                  class="text-gray-500 text-sm italic"
+                  class="text-very-light-gray"
                 >
                   (Suspended)
                 </div>
               </div>
             </div>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+
+          <td class="px-6 py-4 whitespace-nowrap text-very-light-gray">
             {{ merchant.joinedDate }} • {{ merchant.joinedTime }}
           </td>
+
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
             <div class="flex justify-end space-x-3">
-              <button
+              <span
+                role="button"
                 v-if="merchant.status === 'active'"
                 @click="$emit('suspend', merchant.id)"
-                class="text-amber-500 hover:text-amber-600"
+                class="text-orange hover:opacity-80"
               >
                 Suspend
-              </button>
-              <button
+              </span>
+              <span
+                role="button"
                 v-else
                 @click="$emit('restore', merchant.id)"
-                class="text-green-500 hover:text-green-600"
+                class="text-green hover:opacity-80"
               >
                 Restore
-              </button>
-              <button
+              </span>
+              <span
+                role="button"
                 @click="$emit('delete', merchant.id)"
-                class="text-red-500 hover:text-red-600"
+                class="text-red hover:opacity-80"
               >
                 Delete
-              </button>
+              </span>
             </div>
           </td>
         </tr>
       </tbody>
-    </table>
+    </table> -->
+
+    <AppMerchantTable />
   </div>
 </template>
 

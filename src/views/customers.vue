@@ -1,81 +1,51 @@
 <template>
   <dashboard-layout>
-    <div class="bg-white border rounded-lg box-shadow">
-      <div class="flex justify-between items-center h-16 border-b">
-        <h2
-          class="text-lg flex items-center justify-center px-6 font-medium border-r h-full i"
-        >
-          Customers
-        </h2>
-
-        <div class="flex flex-1 items-center space-x-3 border-r px-6 h-full">
-          <app-icon name="search" />
-          <input
-            type="search"
-            placeholder="Search..."
-            v-model="searchQuery"
-            class="py-2 w-full border-none outline-none focus:outline-none focus:border-none"
-          />
-        </div>
-
-        <div class="flex justify-between items-center px-3">
-          <div class="text-sm text-gray-500">
-            {{ paginationText }}
+    <AppTableContainer>
+      <AppTableHeader title="Customers" rightSideClass="flex-1">
+        <div class="flex-1 flex items-center h-full">
+          <div class="flex-1 border-r px-4 h-full border-r flex items-center">
+            <app-search
+              placeholder="Search..."
+              @update:search="searchQuery = $event"
+            />
           </div>
 
-          <div class="flex space-x-2 items-center">
-            <button
-              @click="prevPage"
-              :disabled="currentPage === 1"
-              class="p-2 rounded-md disabled:opacity-50"
-              :class="
-                currentPage === 1
-                  ? 'text-gray-300'
-                  : 'text-gray-700 hover:bg-gray-100'
-              "
-            >
-              <app-icon name="alt-arrow-left" custom-class="h-4" />
-            </button>
-
-            <p class="w-[1px] h-5 bg-light-gray-two"></p>
-
-            <button
-              @click="nextPage"
-              :disabled="isLastPage"
-              class="p-2 disabled:opacity-50"
-              :class="
-                isLastPage ? 'text-gray-300' : 'text-gray-700 hover:bg-gray-100'
-              "
-            >
-              <app-icon name="alt-arrow-right" custom-class="h-5  " />
-            </button>
+          <div class="h-full px-6">
+            <AppPagination
+              :current-page="currentPage"
+              :items-per-page="10"
+              :total-items="125"
+              @update:page="handlePageChange"
+            />
           </div>
         </div>
-      </div>
+      </AppTableHeader>
 
-      <MerchantTable
-        :merchants="filteredMerchants"
-        :currentPage="currentPage"
-        :itemsPerPage="itemsPerPage"
-        @suspend="suspendMerchant"
-        @restore="restoreMerchant"
-        @delete="deleteMerchant"
+      <AppCustomerTable
+        :customers="filteredCustomers"
+        @suspend="suspendCustomer"
+        @restore="restoreCustomer"
+        @delete="deleteCustomer"
       />
-    </div>
+    </AppTableContainer>
   </dashboard-layout>
 </template>
 
 <script setup lang="ts">
   import { ref, computed, onMounted } from "vue"
-  import MerchantTable from "../components/MerchantTable.vue"
-  import { AppIcon } from "@greep/ui-components"
+  import {
+    AppCustomerTable,
+    AppTableHeader,
+    AppTableContainer,
+    AppPagination,
+    AppSearch,
+  } from "@greep/ui-components"
 
   interface Merchant {
     id: number
     name: string
     avatar: string
     joinedDate: string
-
     joinedTime: string
     status: "active" | "suspended"
   }
@@ -170,7 +140,7 @@
   const totalItems = ref(50) // Total number of merchants
 
   // Filter merchants based on search query
-  const filteredMerchants = computed(() => {
+  const filteredCustomers = computed(() => {
     if (!searchQuery.value) return merchants.value
 
     const query = searchQuery.value.toLowerCase()
@@ -179,50 +149,26 @@
     )
   })
 
-  // Calculate whether we're on the last page
-  const isLastPage = computed(() => {
-    return currentPage.value * itemsPerPage.value >= totalItems.value
-  })
-
-  // Create pagination text (e.g., "1-10 of 50")
-  const paginationText = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value + 1
-    const end = Math.min(
-      currentPage.value * itemsPerPage.value,
-      totalItems.value
-    )
-    return `${start}-${end} of ${totalItems.value}`
-  })
-
-  // Handle pagination
-  const nextPage = () => {
-    if (!isLastPage.value) {
-      currentPage.value++
-    }
-  }
-
-  const prevPage = () => {
-    if (currentPage.value > 1) {
-      currentPage.value--
-    }
-  }
-
   // Methods for handling merchant actions
-  const suspendMerchant = (merchantId: number) => {
+  const suspendCustomer = (merchantId: number) => {
     const merchant = merchants.value.find((m) => m.id === merchantId)
     if (merchant) {
       merchant.status = "suspended"
     }
   }
 
-  const restoreMerchant = (merchantId: number) => {
+  const handlePageChange = (newPage: number) => {
+    currentPage.value = newPage
+  }
+
+  const restoreCustomer = (merchantId: number) => {
     const merchant = merchants.value.find((m) => m.id === merchantId)
     if (merchant) {
       merchant.status = "active"
     }
   }
 
-  const deleteMerchant = (merchantId: number) => {
+  const deleteCustomer = (merchantId: number) => {
     merchants.value = merchants.value.filter((m) => m.id !== merchantId)
   }
 </script>
