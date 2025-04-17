@@ -10,7 +10,7 @@ import App from "./App.vue"
 import "@greep/ui-components/dist/library.min.css"
 
 // Layouts
-import DashboardLayout from "./layouts/Dashboard.vue"
+import { DashboardLayout, AuthLayout } from "./layouts"
 
 routes.then((routes) => {
   const router = createRouter({
@@ -25,6 +25,7 @@ routes.then((routes) => {
   })
 
   const app = createApp(App)
+    .component("auth-layout", AuthLayout)
     .component("dashboard-layout", DashboardLayout)
     .use(router)
 

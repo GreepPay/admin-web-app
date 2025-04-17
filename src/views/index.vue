@@ -1,41 +1,115 @@
 <template>
-  <div>Login Page</div>
+  <auth-layout>
+    <div
+      class="w-full flex flex-col items-center justify-start h-full space-y-6"
+    >
+      <app-form-wrapper
+        ref="formComponent"
+        :parent-refs="parentRefs"
+        class="w-full flex flex-col space-y-[20px] h-full"
+      >
+        <app-info-box>
+          <app-normal-text custom-class="!leading-5">
+            <span class="font-semibold"> Let's get started! </span>
+            Help us know you.
+          </app-normal-text>
+        </app-info-box>
+
+        <app-text-field
+          :has-title="false"
+          type="text"
+          placeholder="First Name"
+          ref="first_name"
+          name="First Name"
+          use-floating-label
+          v-model="formData.first_name"
+          :rules="[FormValidations.RequiredRule]"
+        >
+        </app-text-field>
+
+        <app-text-field
+          :has-title="false"
+          type="text"
+          placeholder="Last Name"
+          ref="last_name"
+          name="Last Name"
+          use-floating-label
+          v-model="formData.last_name"
+          :rules="[FormValidations.RequiredRule]"
+        >
+        </app-text-field>
+
+        <app-text-field
+          :has-title="false"
+          type="text"
+          placeholder="Email Address"
+          ref="email"
+          name="Email"
+          v-model="formData.email"
+          use-floating-label
+          :rules="[FormValidations.RequiredRule, FormValidations.EmailRule]"
+        >
+        </app-text-field>
+      </app-form-wrapper>
+    </div>
+  </auth-layout>
 </template>
 
-<script setup lang="ts">
-  import { ref } from "vue"
+<script lang="ts">
+  import { defineComponent, reactive, onMounted, watch, ref } from "vue"
+  import {
+    AppFormWrapper,
+    AppTextField,
+    AppNormalText,
+    AppSelect,
+    AppInfoBox,
+  } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
 
-  type Metric = {
-    label: string
-    value: string
-    type: "number" | "currency"
-  }
+  export default defineComponent({
+    components: {
+      AppFormWrapper,
+      AppTextField,
+      AppNormalText,
+      AppSelect,
+      AppInfoBox,
+    },
+    props: {},
+    name: "AuthSetupAccountInfo",
+    setup() {
+      const FormValidations = Logic.Form
+      const formComponent = ref<any>(null)
 
-  const generalMetrics = ref<Metric[]>([
-    { label: "Merchants", value: "150", type: "number" },
-    { label: "Customers", value: "8,496", type: "number" },
-    { label: "Transactions", value: "112,398", type: "number" },
-    { label: "Volume", value: "$10,440,750", type: "currency" },
-  ])
+      const formData = reactive({
+        first_name: "",
+        last_name: "",
+        email: "",
+        country: "",
+        state: "",
+      })
 
-  const merchantMetrics = ref<Metric[]>([
-    { label: "Income", value: "$8,640,000", type: "currency" },
-    { label: "Withdrawal", value: "$8,400,000", type: "currency" },
-    { label: "Shop Sales", value: "$2,800,000", type: "currency" },
-    { label: "Fee", value: "$255,900", type: "currency" },
-  ])
+      const showStateSelector = ref(true)
+      const stateIsoCode = ref("")
+      const countryCode = ref("")
 
-  const customerMetrics = ref<Metric[]>([
-    { label: "Sent", value: "$2,800,000", type: "currency" },
-    { label: "Added", value: "$3,100,000", type: "currency" },
-    { label: "Purchases", value: "$2,800,000", type: "currency" },
-    { label: "Fee", value: "$480,000", type: "currency" },
-  ])
-
-  const transactionMetrics = ref<Metric[]>([
-    { label: "Transactions", value: "112,398", type: "number" },
-    { label: "Money In", value: "$10,440,750", type: "currency" },
-    { label: "Money Out", value: "$10,440,750", type: "currency" },
-    { label: "Volume", value: "$10,440,750", type: "currency" },
-  ])
+      return {
+        FormValidations,
+        Logic,
+        formData,
+        stateIsoCode,
+        countryCode,
+        showStateSelector,
+        formComponent,
+      }
+    },
+    data() {
+      return {
+        parentRefs: [],
+      }
+    },
+    mounted() {
+      const parentRefs: any = this.$refs
+      this.parentRefs = parentRefs
+    },
+  })
 </script>

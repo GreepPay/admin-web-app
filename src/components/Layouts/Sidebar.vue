@@ -7,7 +7,7 @@
     <div
       class="p-4 border-b border-light-gray-two sticky top-0 h-[76px] bg-white flex items-center z-10"
     >
-      <img src="/images/greep-logo.svg" />
+      <img src="/images/logo/full-green.svg" />
     </div>
 
     <!-- MIDDLE SECTION (Scrollable) -->
