@@ -44,9 +44,6 @@
       />
     </AppTableContainer>
 
-    <!-- 
-    <app-details :details="paymentDetails" /> -->
-
     <AppModal
       :isOpen="showDetails"
       :title="'Merchant Withdrawal'"
@@ -59,18 +56,7 @@
         <h1 class="text-2xl font-bold">$200.00</h1>
       </div>
 
-      <ul class="text-sm text-gray-700 space-y-2">
-        <li class="flex justify-between">
-          <span>Merchant</span
-          ><span class="font-medium">Timms Closet Ventures</span>
-        </li>
-        <li class="flex justify-between">
-          <span>Acc. Name</span><span class="font-medium">Timmy Salami</span>
-        </li>
-        <li class="flex justify-between">
-          <span>Acc. Number</span><span>801***4006</span>
-        </li>
-      </ul>
+      <app-transaction-details :details="paymentDetails" />
     </AppModal>
   </dashboard-layout>
 </template>
@@ -104,8 +90,9 @@
   ]
 
   const tabs = [
-    { key: "recents", label: "Recents" },
-    { key: "beneficiaries", label: "Beneficiaries" },
+    { key: "all", label: "All" },
+    { key: "merchants", label: "Merchants" },
+    { key: "customers", label: "Customers" },
   ]
 
   interface Merchant {
@@ -140,7 +127,7 @@
   const searchQuery = ref("")
   const currentPage = ref(1)
   const itemsPerPage = ref(10)
-  const totalItems = ref(50) // Total number of transactions
+  const totalItems = ref(50)
 
   // Filter transactions based on search query
   const filteredMerchants = computed(() => {
@@ -152,10 +139,10 @@
     )
   })
 
-  //    const paymentDetails = [
-  //   { title: "Deposit Amount", content: "11,233" },
-  //   { title: "Fee", content: "1333" },
-  // ]
+  const paymentDetails = [
+    { title: "Deposit Amount", content: "11,233" },
+    { title: "Fee", content: "1333" },
+  ]
 
   // Calculate whether we're on the last page
   const isLastPage = computed(() => {
