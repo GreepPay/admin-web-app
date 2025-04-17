@@ -1,8 +1,8 @@
 <template>
   <aside
-    class="w-64 relative border-r border-light-gray-two shadow-soft bg-white h-screen hidden md:flex flex-col"
-    :class="{ hidden: !isSidebarOpen && isMobile }"
+    class="w-64 relative border-r bg-white border-light-gray-two shadow-soft bg-green h-screen"
   >
+    <!-- :class="{ hidden: !isSidebarOpen && isMobile }" -->
     <!-- LOGO (Top) -->
     <div
       class="p-4 border-b border-light-gray-two sticky top-0 h-[76px] bg-white flex items-center z-10"
@@ -17,7 +17,7 @@
         :key="sectionIndex"
         class="space-y-2 px-4 pb-6"
         :class="
-          sectionIndex < sidebarSections.length -1 &&
+          sectionIndex < sidebarSections.length - 1 &&
           'border-b border-light-gray-two'
         "
       >

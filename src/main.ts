@@ -6,8 +6,11 @@ import { Logic } from "@greep/logic"
 
 import App from "./App.vue"
 
+// UI component css style
+import "@greep/ui-components/dist/library.min.css"
+
 // Layouts
-import DashboardLayout from "./layouts/DashboardLayout.vue"
+import DashboardLayout from "./layouts/Dashboard.vue"
 
 routes.then((routes) => {
   const router = createRouter({

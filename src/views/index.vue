@@ -4,7 +4,6 @@
 
 <script setup lang="ts">
   import { ref } from "vue"
-  import { OverviewSection } from "../components/Layouts/index.ts"
 
   type Metric = {
     label: string

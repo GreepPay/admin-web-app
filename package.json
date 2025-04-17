@@ -27,5 +27,5 @@
     "vite": "^6.2.0",
     "vue-tsc": "^2.2.4"
   },
-  "description": "Admin app for a project"
+  "description": "Admin app for Greep project"
 }

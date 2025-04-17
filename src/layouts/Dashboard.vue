@@ -1,6 +1,9 @@
 <template>
   <div class="min-h-screen flex w-full">
-    <Sidebar />
+    <!--  -->
+    <div class="w-64 brrder-r">
+      <Sidebar />
+    </div>
 
     <main class="flex-1 bg-white">
       <DashboardHeader />
@@ -16,15 +19,10 @@
   import { Logic } from "@greep/logic"
   import { ref, defineComponent } from "vue"
   import { useRoute, useRouter } from "vue-router"
-  import {
-    Sidebar,
-    OverviewSection,
-    DashboardHeader,
-    SidebarProvider,
-  } from "../components/Layouts/index.ts"
+  import { Sidebar, DashboardHeader } from "../components/Layouts/index"
 
   export default defineComponent({
-    components: { Sidebar, OverviewSection, DashboardHeader, SidebarProvider },
+    components: { Sidebar, DashboardHeader },
     props: {},
     name: "DashboardLayout",
     setup() {
