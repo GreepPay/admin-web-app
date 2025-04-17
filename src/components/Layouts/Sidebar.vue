@@ -1,8 +1,8 @@
 <template>
   <aside
-    class="w-64 relative border-r bg-white border-light-gray-two shadow-soft bg-green h-screen"
+    class="w-64 relative border-r bg-white border-light-gray-two shadow-soft h-screen"
+    :class="{ hidden: !isSidebarOpen && isMobile }"
   >
-    <!-- :class="{ hidden: !isSidebarOpen && isMobile }" -->
     <!-- LOGO (Top) -->
     <div
       class="p-4 border-b border-light-gray-two sticky top-0 h-[76px] bg-white flex items-center z-10"

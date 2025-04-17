@@ -16,14 +16,14 @@
         <p class="text-sm text-gray-500">Super Admin</p>
       </div>
 
-      <AppAvatar src="https://randomuser.me/api/portraits/men/32.jpg" />
+      <app-avatar src="https://randomuser.me/api/portraits/men/32.jpg" />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
   import { AppAvatar, AppIcon } from "@greep/ui-components"
-  import { inject } from "vue"
+  // import { inject } from "vue"
 
-  const toggleSidebar = inject("toggleSidebar", () => {})
+  // const toggleSidebar = inject("toggleSidebar", () => {})
 </script>

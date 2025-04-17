@@ -1,11 +1,11 @@
 <template>
   <dashboard-layout>
     <AppTableContainer>
-      <AppTableHeader title="Transaction Volume">
+      <AppTableHeader title="Transaction Volume" titleClass="flex-1">
         <AppDropdown
           v-model="selectedFilterOption"
           :options="dropdownOptions"
-          placeholder="Assign role"
+          placeholder="Filter by"
         />
       </AppTableHeader>
 
