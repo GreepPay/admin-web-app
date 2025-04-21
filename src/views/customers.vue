@@ -1,7 +1,7 @@
 <template>
   <dashboard-layout>
-    <AppTableContainer>
-      <AppTableHeader title="Customers" rightSideClass="flex-1">
+    <app-table-container>
+      <app-table-header title="Customers" right-side-class="flex-1">
         <div class="flex-1 flex items-center h-full">
           <div class="flex-1 border-r px-4 h-full border-r flex items-center">
             <app-search
@@ -11,7 +11,7 @@
           </div>
 
           <div class="h-full px-6">
-            <AppPagination
+            <app-pagination
               :current-page="currentPage"
               :items-per-page="10"
               :total-items="125"
@@ -19,20 +19,20 @@
             />
           </div>
         </div>
-      </AppTableHeader>
+      </app-table-header>
 
-      <AppCustomerTable
+      <app-customer-table
         :customers="filteredCustomers"
         @suspend="suspendCustomer"
         @restore="restoreCustomer"
         @delete="deleteCustomer"
       />
-    </AppTableContainer>
+    </app-table-container>
   </dashboard-layout>
 </template>
 
-<script setup lang="ts">
-  import { ref, computed, onMounted } from "vue"
+<script lang="ts">
+  import { defineComponent, ref, computed } from "vue"
   import {
     AppCustomerTable,
     AppTableHeader,
@@ -50,125 +50,148 @@
     status: "active" | "suspended"
   }
 
-  // Sample merchant data
-  const merchants = ref<Merchant[]>([
-    {
-      id: 1,
-      name: "Arlene McCoy",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
+  export default defineComponent({
+    name: "CustomersPage",
+    components: {
+      AppCustomerTable,
+      AppTableHeader,
+      AppTableContainer,
+      AppPagination,
+      AppSearch,
     },
-    {
-      id: 2,
-      name: "Floyd Miles",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "suspended",
-    },
-    {
-      id: 3,
-      name: "Ralph Edwards",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-    {
-      id: 4,
-      name: "Jerome Bell",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "suspended",
-    },
-    {
-      id: 5,
-      name: "Eleanor Pena",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "suspended",
-    },
-    {
-      id: 6,
-      name: "Sadie Thomas",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-    {
-      id: 7,
-      name: "Cameron Williamson",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-    {
-      id: 8,
-      name: "Kristin Watson",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-    {
-      id: 9,
-      name: "Mcrory Adams",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-    {
-      id: 10,
-      name: "Stalline Dre",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-  ])
+    setup() {
+      const merchants = ref<Merchant[]>([
+        {
+          id: 1,
+          name: "Arlene McCoy",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "active",
+        },
+        {
+          id: 2,
+          name: "Floyd Miles",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "suspended",
+        },
+        {
+          id: 3,
+          name: "Ralph Edwards",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "active",
+        },
+        {
+          id: 4,
+          name: "Jerome Bell",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "suspended",
+        },
+        {
+          id: 5,
+          name: "Eleanor Pena",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "suspended",
+        },
+        {
+          id: 6,
+          name: "Sadie Thomas",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "active",
+        },
+        {
+          id: 7,
+          name: "Cameron Williamson",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "active",
+        },
+        {
+          id: 8,
+          name: "Kristin Watson",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "active",
+        },
+        {
+          id: 9,
+          name: "Mcrory Adams",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "active",
+        },
+        {
+          id: 10,
+          name: "Stalline Dre",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          joinedDate: "03/11/2024",
+          joinedTime: "19:06",
+          status: "active",
+        },
+      ])
 
-  const searchQuery = ref("")
-  const currentPage = ref(1)
-  const itemsPerPage = ref(10)
-  const totalItems = ref(50) // Total number of merchants
+      const searchQuery = ref("")
+      const currentPage = ref(1)
+      const itemsPerPage = ref(10)
+      const totalItems = ref(50) // Total number of merchants
 
-  // Filter merchants based on search query
-  const filteredCustomers = computed(() => {
-    if (!searchQuery.value) return merchants.value
+      // Filter merchants based on search query
+      const filteredCustomers = computed(() => {
+        if (!searchQuery.value) return merchants.value
 
-    const query = searchQuery.value.toLowerCase()
-    return merchants.value.filter((merchant) =>
-      merchant.name.toLowerCase().includes(query)
-    )
+        const query = searchQuery.value.toLowerCase()
+        return merchants.value.filter((merchant) =>
+          merchant.name.toLowerCase().includes(query)
+        )
+      })
+
+      // Methods for handling merchant actions
+      const suspendCustomer = (merchantId: number) => {
+        const merchant = merchants.value.find((m) => m.id === merchantId)
+        if (merchant) {
+          merchant.status = "suspended"
+        }
+      }
+
+      const handlePageChange = (newPage: number) => {
+        currentPage.value = newPage
+      }
+
+      const restoreCustomer = (merchantId: number) => {
+        const merchant = merchants.value.find((m) => m.id === merchantId)
+        if (merchant) {
+          merchant.status = "active"
+        }
+      }
+
+      const deleteCustomer = (merchantId: number) => {
+        merchants.value = merchants.value.filter((m) => m.id !== merchantId)
+      }
+
+      return {
+        searchQuery,
+        currentPage,
+        itemsPerPage,
+        totalItems,
+        filteredCustomers,
+        suspendCustomer,
+        handlePageChange,
+        restoreCustomer,
+        deleteCustomer,
+      }
+    },
   })
-
-  // Methods for handling merchant actions
-  const suspendCustomer = (merchantId: number) => {
-    const merchant = merchants.value.find((m) => m.id === merchantId)
-    if (merchant) {
-      merchant.status = "suspended"
-    }
-  }
-
-  const handlePageChange = (newPage: number) => {
-    currentPage.value = newPage
-  }
-
-  const restoreCustomer = (merchantId: number) => {
-    const merchant = merchants.value.find((m) => m.id === merchantId)
-    if (merchant) {
-      merchant.status = "active"
-    }
-  }
-
-  const deleteCustomer = (merchantId: number) => {
-    merchants.value = merchants.value.filter((m) => m.id !== merchantId)
-  }
 </script>

@@ -95,32 +95,4 @@
   const handlePageChange = (newPage: number) => {
     currentPage.value = newPage
   }
-  // Filter withdrawals based on search query
-  // const filteredWithdrawals = computed(() => {
-  //   if (!searchQuery.value) return withdrawals.value
-
-  //   const query = searchQuery.value.toLowerCase()
-  //   return withdrawals.value.filter((merchant) =>
-  //     merchant.name.toLowerCase().includes(query)
-  //   )
-  // })
-
-  // // Methods for handling merchant actions
-  // const suspendMerchant = (merchantId: number) => {
-  //   const merchant = withdrawals.value.find((m) => m.id === merchantId)
-  //   if (merchant) {
-  //     merchant.status = "suspended"
-  //   }
-  // }
-
-  // const restoreMerchant = (merchantId: number) => {
-  //   const merchant = withdrawals.value.find((m) => m.id === merchantId)
-  //   if (merchant) {
-  //     merchant.status = "active"
-  //   }
-  // }
-
-  // const deleteMerchant = (merchantId: number) => {
-  //   withdrawals.value = withdrawals.value.filter((m) => m.id !== merchantId)
-  // }
 </script>

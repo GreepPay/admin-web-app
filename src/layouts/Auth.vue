@@ -22,10 +22,9 @@
           <div class="flex w-full items-center justify-between space-x-4">
             <img
               src="/images/logo/greep-admin.svg"
-              class="!h-8"
+              custom-class="!h-8"
               alt="Admin Logo"
             />
-
             <h3 class="flex-1 text-right text-black text-xl font-semibold">
               {{ title }}
             </h3>
@@ -38,32 +37,21 @@
   </div>
 </template>
 
-<script setup lang="ts">
-  import { ref } from "vue"
-
+<script lang="ts">
+  import { defineComponent } from "vue"
   import { AppInfoBox } from "@greep/ui-components"
-  interface Props {
-    title?: string
-  }
 
-  const props = withDefaults(defineProps<Props>(), {
-    title: "Activate Account",
+  export default defineComponent({
+    name: "AppAuthLayout",
+    components: { AppInfoBox },
+    props: {
+      title: {
+        type: String,
+        default: "Activate Account",
+      },
+    },
+    setup() {
+      return {}
+    },
   })
-
-  const email = ref("")
-  const password = ref("")
-  const confirmPassword = ref("")
-  const showPassword = ref(false)
-  const showConfirmPassword = ref(false)
-
-  const handleSubmit = () => {
-    if (password.value !== confirmPassword.value) return
-
-    // Your form logic here
-    console.log("Submitted:", {
-      email: email.value,
-      password: password.value,
-      confirmPassword: confirmPassword.value,
-    })
-  }
 </script>

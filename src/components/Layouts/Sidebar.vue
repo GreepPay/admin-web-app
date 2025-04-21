@@ -16,10 +16,10 @@
         v-for="(section, sectionIndex) in sidebarSections"
         :key="sectionIndex"
         class="space-y-2 px-4 pb-6"
-        :class="
-          sectionIndex < sidebarSections.length - 1 &&
-          'border-b border-light-gray-two'
-        "
+        :class="{
+          'border-b border-light-gray-two':
+            sectionIndex < sidebarSections.length - 1,
+        }"
       >
         <h2 class="text-base text-light-black py-2 px-2 font-medium">
           {{ section.title }}
@@ -63,45 +63,68 @@
   </aside>
 </template>
 
-<script setup lang="ts">
-  import { inject, ref, computed, onMounted } from "vue"
+<script lang="ts">
+  import { defineComponent, inject, ref } from "vue"
+  import { useRoute } from "vue-router"
   import { Logic } from "@greep/logic"
   import { AppIcon } from "@greep/ui-components"
-  import { useRoute } from "vue-router"
 
-  const isSidebarOpen = inject("isSidebarOpen", ref(true))
-  const isMobile = ref(window.innerWidth < 768)
-
-  const getActiveTab = (route: string) => useRoute().fullPath.includes(route)
-
-  const sidebarSections = ref([
-    {
-      title: "General",
-      items: [
-        { title: "Dashboards", icon: "dashboards", route: "/dashboards" },
-        { title: "Analytics", icon: "graph", route: "/analytics" },
-        { title: "Transactions", icon: "trend-up", route: "/transactions" },
-        { title: "Wallets", icon: "wallet-3", route: "/wallets" },
-      ],
+  export default defineComponent({
+    name: "sidebar",
+    components: {
+      AppIcon,
     },
-    {
-      title: "Accounts",
-      items: [
-        { title: "Merchant", icon: "building", route: "/merchants" },
-        { title: "Customer", icon: "user", route: "/customers" },
-        { title: "Admin", icon: "shield-security", route: "/admin" },
-      ],
-    },
-    {
-      title: "Merchant",
-      items: [
+    setup() {
+      const route = useRoute()
+      const isSidebarOpen = inject("isSidebarOpen", ref(true))
+      const isMobile = ref(window.innerWidth < 768)
+
+      const getActiveTab = (tabRoute: string) => {
+        return route.fullPath.includes(tabRoute)
+      }
+
+      const sidebarSections = ref([
         {
-          title: "Verification",
-          icon: "personal-card",
-          route: "/verification",
+          title: "General",
+          items: [
+            { title: "Dashboards", icon: "dashboards", route: "/dashboards" },
+            { title: "Analytics", icon: "graph", route: "/analytics" },
+            { title: "Transactions", icon: "trend-up", route: "/transactions" },
+            { title: "Wallets", icon: "wallet-3", route: "/wallets" },
+          ],
         },
-        { title: "Withdrawal", icon: "money-recieve", route: "/withdrawal" },
-      ],
+        {
+          title: "Accounts",
+          items: [
+            { title: "Merchant", icon: "building", route: "/merchants" },
+            { title: "Customer", icon: "user", route: "/customers" },
+            { title: "Admin", icon: "shield-security", route: "/admin" },
+          ],
+        },
+        {
+          title: "Merchant",
+          items: [
+            {
+              title: "Verification",
+              icon: "personal-card",
+              route: "/verification",
+            },
+            {
+              title: "Withdrawal",
+              icon: "money-recieve",
+              route: "/withdrawal",
+            },
+          ],
+        },
+      ])
+
+      return {
+        isSidebarOpen,
+        isMobile,
+        sidebarSections,
+        getActiveTab,
+        Logic,
+      }
     },
-  ])
+  })
 </script>

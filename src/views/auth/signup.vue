@@ -47,25 +47,22 @@
 
       <!-- Button -->
       <div class="w-full flex flex-col items-center justify-center pt-5">
-        <AppButton
+        <app-button
           @click.prevent="Logic.Common.GoToRoute('/dashboards')"
           class="w-full !py-4"
         >
           Sign Up
-        </AppButton>
+        </app-button>
       </div>
     </app-form-wrapper>
   </auth-layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, onMounted, watch, ref } from "vue"
+  import { defineComponent, reactive, ref } from "vue"
   import {
     AppFormWrapper,
     AppTextField,
-    AppNormalText,
-    AppSelect,
-    AppInfoBox,
     AppButton,
     AppDivider,
   } from "@greep/ui-components"
@@ -75,9 +72,6 @@
     components: {
       AppFormWrapper,
       AppTextField,
-      AppNormalText,
-      AppSelect,
-      AppInfoBox,
       AppButton,
       AppDivider,
     },
@@ -92,17 +86,10 @@
         confirm_password: "",
       })
 
-      const showStateSelector = ref(true)
-      const stateIsoCode = ref("")
-      const countryCode = ref("")
-
       return {
         FormValidations,
         Logic,
         formData,
-        stateIsoCode,
-        countryCode,
-        showStateSelector,
         formComponent,
       }
     },

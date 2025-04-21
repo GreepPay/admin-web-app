@@ -33,12 +33,12 @@
 
         <!-- Button -->
         <div class="w-full flex flex-col items-center justify-center pt-5">
-          <AppButton
+          <app-button
             @click.prevent="Logic.Common.GoToRoute('/auth/signup')"
             class="w-full py-4"
           >
             Login
-          </AppButton>
+          </app-button>
         </div>
       </app-form-wrapper>
     </div>

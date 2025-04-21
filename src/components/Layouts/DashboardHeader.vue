@@ -21,6 +21,24 @@
   </header>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+  import { defineComponent } from "vue"
   import { AppAvatar, AppIcon } from "@greep/ui-components"
+
+  export default defineComponent({
+    name: "DashboardHeader",
+    components: {
+      AppAvatar,
+      AppIcon,
+    },
+    setup() {
+      const toggleSidebar = () => {
+        console.log("Sidebar toggled") // Replace this with actual toggle logic
+      }
+
+      return {
+        toggleSidebar,
+      }
+    },
+  })
 </script>
