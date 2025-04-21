@@ -1,11 +1,7 @@
 <template>
   <auth-layout>
-    <div class="w-full h-full">
-      <app-form-wrapper
-        ref="formComponent"
-        :parent-refs="parentRefs"
-        class="w-full flex flex-col space-y-[20px] h-full"
-      >
+    <app-form-wrapper ref="formComponent" :parent-refs="parentRefs">
+      <div class="w-full flex flex-col space-y-5">
         <app-text-field inputStyle="text-sm" disabled>
           <template #inner-prefix>
             <span class="text-light-black"> ID </span>
@@ -15,7 +11,7 @@
           </template>
         </app-text-field>
 
-        <hr class="!mb-5" />
+        <AppDivider type="horizontal" customClass="!mb-5" />
 
         <app-text-field
           :has-title="false"
@@ -47,15 +43,18 @@
           ]"
         >
         </app-text-field>
+      </div>
 
-        <!-- Button -->
-        <div class="w-full flex flex-col items-center justify-center pt-5">
-          <AppButton @click.prevent="null" class="w-full py-4">
-            Sign Up
-          </AppButton>
-        </div>
-      </app-form-wrapper>
-    </div>
+      <!-- Button -->
+      <div class="w-full flex flex-col items-center justify-center pt-5">
+        <AppButton
+          @click.prevent="Logic.Common.GoToRoute('/dashboards')"
+          class="w-full !py-4"
+        >
+          Sign Up
+        </AppButton>
+      </div>
+    </app-form-wrapper>
   </auth-layout>
 </template>
 
@@ -68,6 +67,7 @@
     AppSelect,
     AppInfoBox,
     AppButton,
+    AppDivider,
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
 
@@ -79,9 +79,10 @@
       AppSelect,
       AppInfoBox,
       AppButton,
+      AppDivider,
     },
     props: {},
-    name: "AuthSetupAccountInfo",
+    name: "AuthSignUp",
     setup() {
       const FormValidations = Logic.Form
       const formComponent = ref<any>(null)

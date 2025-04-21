@@ -19,7 +19,7 @@
     <div class="w-1/2 flex items-center justify-center bg-white p-8">
       <div class="flex flex-col my-auto space-y-3 w-[480px]">
         <app-info-box>
-          <div class="flex items-center justify-between space-x-4">
+          <div class="flex w-full items-center justify-between space-x-4">
             <img
               src="/images/logo/greep-admin.svg"
               class="!h-8"
@@ -27,7 +27,7 @@
             />
 
             <h3 class="flex-1 text-right text-black text-xl font-semibold">
-              {{ authTitle }}
+              {{ title }}
             </h3>
           </div>
         </app-info-box>
@@ -43,11 +43,11 @@
 
   import { AppInfoBox } from "@greep/ui-components"
   interface Props {
-    authTitle?: string
+    title?: string
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    authTitle: "Activate Account",
+    title: "Activate Account",
   })
 
   const email = ref("")

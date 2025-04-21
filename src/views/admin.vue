@@ -58,12 +58,11 @@
         </div>
       </AppTableHeader>
 
-      <!-- <AppCustomerTable
-        :customers="filteredCustomers"
-        @suspend="suspendCustomer"
-        @restore="restoreCustomer"
-        @delete="deleteCustomer"
-      /> -->
+      <AppAdminTable
+        :admins="admins"
+        @change-role="changeRole"
+        @remove="deleteCustomer"
+      />
 
       <!-- <AppPdfViewer fileUrl="/test-pdf.pdf" /> -->
     </AppTableContainer>
@@ -73,7 +72,7 @@
 <script setup lang="ts">
   import { ref, computed, onMounted, reactive } from "vue"
   import {
-    AppCustomerTable,
+    AppAdminTable,
     AppTableHeader,
     AppTableContainer,
     AppPagination,
@@ -85,56 +84,58 @@
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
 
-  interface Merchant {
+  type AdminRole = "super-admin" | "admin" | "moderator" | "user" | null
+
+  interface Admin {
     id: number
     name: string
     avatar: string
+    role: AdminRole
     joinedDate: string
     joinedTime: string
-    status: "active" | "suspended"
   }
 
   // Sample merchant data
-  const merchants = ref<Merchant[]>([
+  const admins = ref<Admin[]>([
     {
       id: 1,
-      name: "Arlene McCoy",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      name: "Ralph Edwards",
+      avatar: "https://i.pravatar.cc/100?img=1",
+      role: "super-admin",
       joinedDate: "03/11/2024",
       joinedTime: "19:06",
-      status: "active",
     },
     {
       id: 2,
       name: "Floyd Miles",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      avatar: "https://i.pravatar.cc/100?img=2",
+      role: "admin",
       joinedDate: "03/11/2024",
       joinedTime: "19:06",
-      status: "suspended",
     },
     {
-      id: 8,
-      name: "Kristin Watson",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      id: 3,
+      name: "Arlene McCoy",
+      avatar: "https://i.pravatar.cc/100?img=3",
+      role: "moderator",
       joinedDate: "03/11/2024",
       joinedTime: "19:06",
-      status: "active",
     },
     {
-      id: 9,
-      name: "Mcrory Adams",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      id: 332,
+      name: "Arlene McCoy",
+      avatar: "https://i.pravatar.cc/100?img=8",
+      role: "user",
       joinedDate: "03/11/2024",
       joinedTime: "19:06",
-      status: "active",
     },
     {
-      id: 10,
-      name: "Stalline Dre",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      id: 23,
+      name: "Arlene McCoy",
+      avatar: "https://i.pravatar.cc/100?img=6",
+      role: null,
       joinedDate: "03/11/2024",
       joinedTime: "19:06",
-      status: "active",
     },
   ])
 
@@ -157,36 +158,7 @@
     { label: "User", value: "user" },
   ]
 
-  // Filter merchants based on search query
-  const filteredCustomers = computed(() => {
-    if (!searchQuery.value) return merchants.value
-
-    const query = searchQuery.value.toLowerCase()
-    return merchants.value.filter((merchant) =>
-      merchant.name.toLowerCase().includes(query)
-    )
-  })
-
-  // Methods for handling merchant actions
-  const suspendCustomer = (merchantId: number) => {
-    const merchant = merchants.value.find((m) => m.id === merchantId)
-    if (merchant) {
-      merchant.status = "suspended"
-    }
-  }
-
-  const handlePageChange = (newPage: number) => {
-    currentPage.value = newPage
-  }
-
-  const restoreCustomer = (merchantId: number) => {
-    const merchant = merchants.value.find((m) => m.id === merchantId)
-    if (merchant) {
-      merchant.status = "active"
-    }
-  }
-
-  const deleteCustomer = (merchantId: number) => {
-    merchants.value = merchants.value.filter((m) => m.id !== merchantId)
+  const changeRole = (user: Admin) => {
+    console.log(user)
   }
 </script>

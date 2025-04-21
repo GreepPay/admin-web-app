@@ -51,12 +51,19 @@
       :showFooter="false"
       @close="showDetails = false"
     >
-      <div class="bg-green-600 text-white text-center py-4 rounded-md mb-4">
-        <p class="text-sm">Amount</p>
-        <h1 class="text-2xl font-bold">$200.00</h1>
-      </div>
+      <div class="space-y-5">
+        <AppImageCardContainer>
+          <div class="text-white text-center space-y-1">
+            <p class="text-sm">Amount</p>
+            <h1 class="text-2xl font-medium">$200.00</h1>
+          </div>
+        </AppImageCardContainer>
 
-      <app-transaction-details :details="paymentDetails" />
+        <app-transaction-details
+          :details="[{ title: 'Deposit Amount', content: '11,233' }]"
+        />
+        <app-transaction-details :details="paymentDetails" />
+      </div>
     </AppModal>
   </dashboard-layout>
 </template>
@@ -75,6 +82,7 @@
     AppTabs,
     AppModal,
     AppTransactionDetails,
+    AppImageCardContainer,
   } from "@greep/ui-components"
 
   const selectedFilterOption = ref("all_time")

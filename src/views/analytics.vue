@@ -10,7 +10,7 @@
       </AppTableHeader>
 
       <!-- Chart -->
-      <div class="p-6 w-full h-fit !max-h-[620px] h-[80%] border">
+      <div class="p-6 w-full h-fit !max- !h-[620px] border">
         <apexchart
           type="line"
           :options="chartOptions"

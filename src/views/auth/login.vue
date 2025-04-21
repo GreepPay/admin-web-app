@@ -1,21 +1,22 @@
 <template>
-  <auth-layout>
+  <auth-layout title="Welcome Back">
     <div class="w-full h-full">
       <app-form-wrapper
         ref="formComponent"
         :parent-refs="parentRefs"
         class="w-full flex flex-col space-y-[20px] h-full"
       >
-        <app-text-field inputStyle="text-sm" disabled>
-          <template #inner-prefix>
-            <span class="text-light-black"> ID </span>
-          </template>
-          <template #inner-suffix>
-            <span class="text-light-black"> scrpt@gmail.com </span>
-          </template>
+        <app-text-field
+          :has-title="false"
+          type="text"
+          placeholder="Email Address"
+          ref="email"
+          name="Email"
+          v-model="formData.email"
+          use-floating-label
+          :rules="[FormValidations.RequiredRule, FormValidations.EmailRule]"
+        >
         </app-text-field>
-
-        <hr class="!mb-5" />
 
         <app-text-field
           :has-title="false"
@@ -30,28 +31,13 @@
         >
         </app-text-field>
 
-        <app-text-field
-          :has-title="false"
-          type="password"
-          placeholder="Confirm Password"
-          ref="confirm_password"
-          name="Confirm Password"
-          use-floating-label
-          v-model="formData.confirm_password"
-          :rules="[
-            FormValidations.RequiredRule,
-            FormValidations.handleConfirmPassword(
-              formData.password,
-              formData.confirm_password
-            ),
-          ]"
-        >
-        </app-text-field>
-
         <!-- Button -->
         <div class="w-full flex flex-col items-center justify-center pt-5">
-          <AppButton @click.prevent="null" class="w-full py-4">
-            Sign Up
+          <AppButton
+            @click.prevent="Logic.Common.GoToRoute('/auth/signup')"
+            class="w-full py-4"
+          >
+            Login
           </AppButton>
         </div>
       </app-form-wrapper>
@@ -81,14 +67,14 @@
       AppButton,
     },
     props: {},
-    name: "AuthSetupAccountInfo",
+    name: "AuthLogin",
     setup() {
       const FormValidations = Logic.Form
       const formComponent = ref<any>(null)
 
       const formData = reactive({
         password: "",
-        confirm_password: "",
+        email: "",
       })
 
       const showStateSelector = ref(true)
