@@ -1,7 +1,11 @@
 import { createApp } from "vue"
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router"
+import VueApexCharts from "vue3-apexcharts"
+
 import routes from "./router/index"
 import "./assets/styles/index.css"
+
+// import app logic
 import { Logic } from "@greep/logic"
 
 import App from "./App.vue"
@@ -25,9 +29,11 @@ routes.then((routes) => {
   })
 
   const app = createApp(App)
-    .component("auth-layout", AuthLayout)
-    .component("dashboard-layout", DashboardLayout)
+    .use(VueApexCharts)
     .use(router)
+    .component("auth-layout", AuthLayout)
+    .component("apexchart", VueApexCharts)
+    .component("dashboard-layout", DashboardLayout)
 
   app.mount("#app")
 })

@@ -23,7 +23,4 @@
 
 <script setup lang="ts">
   import { AppAvatar, AppIcon } from "@greep/ui-components"
-  // import { inject } from "vue"
-
-  // const toggleSidebar = inject("toggleSidebar", () => {})
 </script>

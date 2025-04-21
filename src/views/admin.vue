@@ -3,7 +3,7 @@
     <AppTableContainer>
       <AppTableHeader title="Admin Users" rightSideClass="flex-1">
         <div class="flex-1 flex items-center h-full">
-          <div class="flex-1 border-r px-4 h-full border-r flex items-center">
+          <div class="flex-1 px-4 h-full border-r flex items-center">
             <app-search
               placeholder="Search..."
               @update:search="searchQuery = $event"
@@ -21,25 +21,69 @@
         </div>
       </AppTableHeader>
 
-      <AppCustomerTable
+      <AppTableHeader titleClass="!py-0 flex-1" rightSideClass="!p-0">
+        <template #title>
+          <div class="flex-1 h-full">
+            <app-text-field
+              type="email"
+              placeholder="Enter email"
+              ref="email"
+              name="Email"
+              v-model="formData.email"
+              :show-validation-message="false"
+              customClass="border-none !text-green"
+              inputStyle="!font-normal"
+            >
+            </app-text-field>
+          </div>
+        </template>
+
+        <div class="flex-1 flex items-center h-full">
+          <div class="h-full">
+            <AppDropdown
+              v-model="selectedRole"
+              :options="roleOptions"
+              placeholder="Assign role"
+            />
+          </div>
+
+          <div class="h-full">
+            <AppButton
+              variant="primary"
+              customClass="w-full !py-4.5 !bg-black !rounded-none"
+            >
+              Make Admin
+            </AppButton>
+          </div>
+        </div>
+      </AppTableHeader>
+
+      <!-- <AppCustomerTable
         :customers="filteredCustomers"
         @suspend="suspendCustomer"
         @restore="restoreCustomer"
         @delete="deleteCustomer"
-      />
+      /> -->
+
+      <!-- <AppPdfViewer fileUrl="/test-pdf.pdf" /> -->
     </AppTableContainer>
   </dashboard-layout>
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted } from "vue"
+  import { ref, computed, onMounted, reactive } from "vue"
   import {
     AppCustomerTable,
     AppTableHeader,
     AppTableContainer,
     AppPagination,
     AppSearch,
+    AppPdfViewer,
+    AppTextField,
+    AppButton,
+    AppDropdown,
   } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
 
   interface Merchant {
     id: number
@@ -69,46 +113,6 @@
       status: "suspended",
     },
     {
-      id: 3,
-      name: "Ralph Edwards",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-    {
-      id: 4,
-      name: "Jerome Bell",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "suspended",
-    },
-    {
-      id: 5,
-      name: "Eleanor Pena",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "suspended",
-    },
-    {
-      id: 6,
-      name: "Sadie Thomas",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-    {
-      id: 7,
-      name: "Cameron Williamson",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joinedDate: "03/11/2024",
-      joinedTime: "19:06",
-      status: "active",
-    },
-    {
       id: 8,
       name: "Kristin Watson",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
@@ -134,10 +138,24 @@
     },
   ])
 
+  const FormValidations = Logic.Form
+  const formComponent = ref<any>(null)
   const searchQuery = ref("")
   const currentPage = ref(1)
   const itemsPerPage = ref(10)
   const totalItems = ref(50) // Total number of merchants
+  const formData = reactive({
+    email: "",
+  })
+
+  const selectedRole = ref(null)
+
+  const roleOptions = [
+    { label: "Super Admin", value: "super-admin" },
+    { label: "Admin", value: "admin" },
+    { label: "Moderator", value: "moderator" },
+    { label: "User", value: "user" },
+  ]
 
   // Filter merchants based on search query
   const filteredCustomers = computed(() => {

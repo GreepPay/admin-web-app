@@ -10,13 +10,21 @@
       </AppTableHeader>
 
       <!-- Chart -->
-      <div class="p-6">{{ selectedFilterOption }}</div>
+      <div class="p-6 w-full h-fit !max-h-[620px] h-[80%] border">
+        <apexchart
+          type="line"
+          :options="chartOptions"
+          :series="series"
+          height="100%"
+        />
+      </div>
     </AppTableContainer>
   </dashboard-layout>
 </template>
 
 <script setup lang="ts">
   import { ref } from "vue"
+  import ApexCharts from "vue3-apexcharts"
   import {
     AppDropdown,
     AppTableHeader,
@@ -33,4 +41,51 @@
     { label: "This Month", value: "monthly" },
     { label: "This Year", value: "yearly" },
   ]
+
+  const series = ref([
+    {
+      name: "Desktops",
+      data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
+    },
+  ])
+
+  const chartOptions = ref({
+    chart: {
+      // height: 350,
+      type: "line",
+      zoom: {
+        enabled: false,
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: "straight",
+    },
+    grid: {
+      row: {
+        colors: ["#f3f3f3", "transparent"],
+        opacity: 0.5,
+      },
+      clums: {
+        colors: ["#f3f3f3", "transparent"],
+        opacity: 0.5,
+      },
+    },
+    xaxis: {
+      categories: [
+        "Apr 1",
+        "Apr 2",
+        "Apr 3",
+        "Apr 4",
+        "Apr 5",
+        "Apr 6",
+        "Apr 7",
+        "Apr 8",
+        "Apr 9",
+        "Apr 10",
+      ],
+    },
+  })
 </script>

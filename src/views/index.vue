@@ -8,16 +8,9 @@
         :parent-refs="parentRefs"
         class="w-full flex flex-col space-y-[20px] h-full"
       >
-        <app-info-box>
-          <app-normal-text custom-class="!leading-5">
-            <span class="font-semibold"> Let's get started! </span>
-            Help us know you.
-          </app-normal-text>
-        </app-info-box>
-
         <app-text-field
           :has-title="false"
-          type="text"
+          type="password"
           placeholder="First Name"
           ref="first_name"
           name="First Name"
@@ -50,6 +43,16 @@
           :rules="[FormValidations.RequiredRule, FormValidations.EmailRule]"
         >
         </app-text-field>
+
+        <AppButton variant="primary" customClass="w-full !py-4.5 !rounded-none">
+          Make Admin
+        </AppButton>
+        <!-- Button -->
+        <div class="w-full flex flex-col items-center justify-center pt-5">
+          <AppButton @click.prevent="null" class="w-full py-3">
+            Reset Password
+          </AppButton>
+        </div>
       </app-form-wrapper>
     </div>
   </auth-layout>
@@ -58,6 +61,7 @@
 <script lang="ts">
   import { defineComponent, reactive, onMounted, watch, ref } from "vue"
   import {
+    AppButton,
     AppFormWrapper,
     AppTextField,
     AppNormalText,
