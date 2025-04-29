@@ -1,7 +1,6 @@
 <template>
   <dashboard-layout>
     <div class="h-[600px]">
-      ewew
       <PDFViewer :url="pdfUrl" />
     </div>
   </dashboard-layout>
