@@ -26,16 +26,17 @@
           name="Password"
           use-floating-label
           v-model="formData.password"
-          :rules="[FormValidations.RequiredRule, FormValidations.PasswordRule]"
           inputStyle="text-sm"
         >
+          <!-- :rules="[FormValidations.RequiredRule, FormValidations.PasswordRule]" -->
         </app-text-field>
 
         <!-- Button -->
         <div class="w-full flex flex-col items-center justify-center pt-5">
           <app-button
-            @click.prevent="Logic.Common.GoToRoute('/auth/signup')"
+            @click.prevent="handleSignIn"
             class="w-full py-4"
+            :loading="loadingState"
           >
             Login
           </app-button>
@@ -73,13 +74,53 @@
       const formComponent = ref<any>(null)
 
       const formData = reactive({
-        password: "",
-        email: "",
+        email: "ufelidan@gmail.com",
+        password: "12345678",
       })
 
+      const loadingState = ref(false)
       const showStateSelector = ref(true)
       const stateIsoCode = ref("")
       const countryCode = ref("")
+
+      const handleSignIn = async () => {
+        const state = formComponent.value?.validate()
+        console.log("state:::", state)
+
+        if (state) {
+          loadingState.value = true
+          Logic.Auth.SignInPayload = {
+            email: formData.email,
+            password: formData.password,
+          }
+
+          try {
+            const response = await Logic.Auth.SignIn(true)
+            console.log("response", response)
+
+            // await Logic.Auth.GetAuthUser()
+
+            // Check if passcode has been set
+            // if (localStorage.getItem("auth_passcode")) {
+            //   Logic.Common.GoToRoute("/")
+            // } else {
+            //   // Save auth email and pass
+            //   // localStorage.setItem(
+            //   //   "auth_email",
+            //   //   Logic.Auth.SignInPayload?.email || ""
+            //   // )
+            //   // localStorage.setItem(
+            //   //   "auth_pass",
+            //   //   Logic.Auth.SignInPayload?.password || ""
+            //   // )
+            //   // Logic.Common.GoToRoute("/auth/set-passcode")
+            // }
+          } catch (err) {
+          } finally {
+            loadingState.value = false
+          }
+        }
+      }
 
       return {
         FormValidations,
@@ -89,6 +130,8 @@
         countryCode,
         showStateSelector,
         formComponent,
+        loadingState,
+        handleSignIn,
       }
     },
     data() {

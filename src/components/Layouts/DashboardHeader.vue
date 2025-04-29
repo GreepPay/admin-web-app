@@ -1,6 +1,6 @@
 <template>
   <header
-    class="border-b z-5 border-light-gray-two sticky top-0 box-shadow bg-white p-4 flex h-[76px] justify-between items-center"
+    class="border-b z-20 border-light-gray-two sticky top-0 box-shadow bg-white p-4 flex h-[76px] justify-between items-center"
   >
     <div class="flex items-center">
       <button @click="toggleSidebar" class="md:hidden mr-2">
