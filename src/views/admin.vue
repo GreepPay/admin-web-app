@@ -57,17 +57,20 @@
         </div>
       </app-table-header>
 
+     
+        <!-- :admins="admins" -->
       <app-admin-table
-        :admins="admins"
+        :admins="AdminProfilePaginator.data"
         @change-role="changeRole"
         @remove="deleteCustomer"
       />
+ 
     </app-table-container>
   </dashboard-layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, reactive } from "vue"
+  import { defineComponent, ref, reactive, onMounted } from "vue"
   import {
     AppAdminTable,
     AppTableHeader,
@@ -102,6 +105,18 @@
       AppTextField,
       AppButton,
       AppDropdown,
+    },
+
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "User",
+          property: "AdminProfilePaginator",
+          method: "GetAllAdminProfiles",
+          params: [],
+          requireAuth: true,
+        },
+      ],
     },
     setup() {
       const admins = ref<Admin[]>([
@@ -147,12 +162,10 @@
         },
       ])
 
-      const FormValidations = Logic.Form
-      const formComponent = ref<any>(null)
       const searchQuery = ref("")
       const currentPage = ref(1)
       const itemsPerPage = ref(10)
-      const totalItems = ref(50) // Total number of admins
+      const totalItems = ref(50)
       const formData = reactive({
         email: "",
       })
@@ -173,6 +186,21 @@
         currentPage.value = newPage
       }
 
+      const adminUsers = ref([])
+
+      const GetAllAdminProfiles = async () => {
+        const response = await Logic.User.GetAllAdminProfiles()
+        console.log("response", response)
+        adminUsers.value = response.data
+      }
+
+      const AdminProfilePaginator = ref(Logic.User.AdminProfilePaginator)
+
+      onMounted(async () => {
+        Logic.User.watchProperty("AdminProfilePaginator", AdminProfilePaginator)
+        // await GetAllAdminProfiles()
+      })
+
       return {
         admins,
         searchQuery,
@@ -180,8 +208,10 @@
         formData,
         selectedRole,
         roleOptions,
+        adminUsers,
         changeRole,
         handlePageChange,
+        AdminProfilePaginator,
       }
     },
   })

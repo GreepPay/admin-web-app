@@ -15,14 +15,16 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent } from "vue"
+  import { defineComponent, ref } from "vue"
   import { Sidebar, DashboardHeader } from "../components/Layouts/index"
+  import { Logic } from "@greep/logic"
 
   export default defineComponent({
     name: "AppDashboardLayout",
     components: { Sidebar, DashboardHeader },
     setup() {
-      return {}
+      const AuthUser = ref(Logic.Auth.AuthUser)
+      return { AuthUser }
     },
   })
 </script>

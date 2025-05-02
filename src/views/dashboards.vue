@@ -4,8 +4,8 @@
       <app-table-container>
         <app-table-header title="General Overview" titleClass="flex-1">
           <app-dropdown
-            v-model="selectedGeneralRole"
-            :options="roleOptions"
+            v-model="generalOverviewFilterOption"
+            :options="filterOptions"
             placeholder="Assign role"
           />
         </app-table-header>
@@ -25,8 +25,8 @@
       <app-table-container>
         <app-table-header title="Merchants Overview" titleClass="flex-1">
           <app-dropdown
-            v-model="selectedMerchantRole"
-            :options="roleOptions"
+            v-model="merchantOverviewFilterOption"
+            :options="filterOptions"
             placeholder="Assign role"
           />
         </app-table-header>
@@ -46,8 +46,8 @@
       <app-table-container>
         <app-table-header title="Customer Overview" titleClass="flex-1">
           <app-dropdown
-            v-model="selectedCustomerRole"
-            :options="roleOptions"
+            v-model="customerOverviewFilterOption"
+            :options="filterOptions"
             placeholder="Assign role"
           />
         </app-table-header>
@@ -67,8 +67,8 @@
       <app-table-container>
         <app-table-header title="Transaction Overview" titleClass="flex-1">
           <app-dropdown
-            v-model="selectedTransactionRole"
-            :options="roleOptions"
+            v-model="transactionOverviewFilterOption"
+            :options="filterOptions"
             placeholder="Assign role"
           />
         </app-table-header>
@@ -83,19 +83,38 @@
             :class="getBgColor(index, true)"
           />
         </div>
+
+        <pre>
+      {{ GeneralOverview }}
+      </pre
+        >
+        <pre>
+      {{ MerchantOverview }}
+      </pre
+        >
+        <pre>
+      {{ TransactionOverview }}
+      </pre
+        >
+
+        <pre>
+      {{ CustomerOverview }}
+      </pre
+        >
       </app-table-container>
     </div>
   </dashboard-layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from "vue"
+  import { defineComponent, ref, onMounted } from "vue"
   import {
     AppDropdown,
     AppTableHeader,
     AppStatCard,
     AppTableContainer,
   } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
 
   type Metric = {
     label: string
@@ -111,17 +130,49 @@
       AppStatCard,
       AppTableContainer,
     },
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "Dashboard",
+          property: "GeneralOverview",
+          method: "GetGeneralOverview",
+          params: [],
+          requireAuth: true,
+        },
+        {
+          domain: "Dashboard",
+          property: "MerchantOverview",
+          method: "GetMerchantOverview",
+          params: [],
+          requireAuth: true,
+        },
+        {
+          domain: "Dashboard",
+          property: "CustomerOverview",
+          method: "GetCustomerOverview",
+          params: [],
+          requireAuth: true,
+        },
+        {
+          domain: "Dashboard",
+          property: "TransactionOverview",
+          method: "GetTransactionOverview",
+          params: [],
+          requireAuth: true,
+        },
+      ],
+    },
     setup() {
-      const selectedGeneralRole = ref("admin")
-      const selectedMerchantRole = ref("admin")
-      const selectedCustomerRole = ref("admin")
-      const selectedTransactionRole = ref("admin")
+      const generalOverviewFilterOption = ref("")
+      const merchantOverviewFilterOption = ref("")
+      const customerOverviewFilterOption = ref("")
+      const transactionOverviewFilterOption = ref("")
 
-      const roleOptions = [
-        { label: "Super Admin", value: "super-admin" },
-        { label: "Admin", value: "admin" },
-        { label: "Moderator", value: "moderator" },
-        { label: "User", value: "user" },
+      const filterOptions = [
+        { label: "All Time", value: "" },
+        { label: "Daily", value: "daily" },
+        { label: "Weekly", value: "weekly" },
+        { label: "Monthly", value: "monthly" },
       ]
 
       const generalMetrics = ref<Metric[]>([
@@ -160,17 +211,38 @@
         return !isEven ? "bg-white" : "bg-gray-two-40"
       }
 
+      // const GetProfiles = async () => {
+      //   const response = await Logic.User.GetAllAdminProfiles()
+      //   console.log("response", response)
+      // }
+
+      const GeneralOverview = ref(Logic.Dashboard.GeneralOverview)
+      const MerchantOverview = ref(Logic.Dashboard.MerchantOverview)
+      const CustomerOverview = ref(Logic.Dashboard.CustomerOverview)
+      const TransactionOverview = ref(Logic.Dashboard.TransactionOverview)
+
+      onMounted(async () => {
+        Logic.User.watchProperty("GeneralOverview", GeneralOverview)
+        Logic.User.watchProperty("MerchantOverview", MerchantOverview)
+        Logic.User.watchProperty("CustomerOverview", CustomerOverview)
+        Logic.User.watchProperty("TransactionOverview", TransactionOverview)
+      })
+
       return {
-        selectedGeneralRole,
-        selectedMerchantRole,
-        selectedCustomerRole,
-        selectedTransactionRole,
-        roleOptions,
+        generalOverviewFilterOption,
+        merchantOverviewFilterOption,
+        customerOverviewFilterOption,
+        transactionOverviewFilterOption,
+        filterOptions,
         generalMetrics,
         merchantMetrics,
         customerMetrics,
         transactionMetrics,
         getBgColor,
+        CustomerOverview,
+        TransactionOverview,
+        GeneralOverview,
+        MerchantOverview,
       }
     },
   })
