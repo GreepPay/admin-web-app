@@ -22,17 +22,21 @@
       </app-table-header>
 
       <app-customer-table
-        :customers="filteredCustomers"
+        :customers="CustomerProfilePaginator.data"
         @suspend="suspendCustomer"
         @restore="restoreCustomer"
         @delete="deleteCustomer"
       />
+
+      <pre>
+            {{ CustomerProfilePaginator }}
+      </pre>
     </app-table-container>
   </dashboard-layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, computed } from "vue"
+  import { defineComponent, ref, computed, onMounted } from "vue"
   import {
     AppCustomerTable,
     AppTableHeader,
@@ -40,6 +44,7 @@
     AppPagination,
     AppSearch,
   } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
 
   interface Merchant {
     id: number
@@ -59,51 +64,23 @@
       AppPagination,
       AppSearch,
     },
+
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "User",
+          property: "CustomerProfilePaginator",
+          method: "GetCustomerProfiles",
+          params: [],
+          requireAuth: true,
+        },
+      ],
+    },
     setup() {
       const merchants = ref<Merchant[]>([
         {
           id: 1,
           name: "Arlene McCoy",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 2,
-          name: "Floyd Miles",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "suspended",
-        },
-        {
-          id: 3,
-          name: "Ralph Edwards",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 4,
-          name: "Jerome Bell",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "suspended",
-        },
-        {
-          id: 5,
-          name: "Eleanor Pena",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "suspended",
-        },
-        {
-          id: 10,
-          name: "Stalline Dre",
           avatar: "https://randomuser.me/api/portraits/men/32.jpg",
           joinedDate: "03/11/2024",
           joinedTime: "19:06",
@@ -115,6 +92,8 @@
       const currentPage = ref(1)
       const itemsPerPage = ref(10)
       const totalItems = ref(50) // Total number of merchants
+
+      const CustomerProfilePaginator = ref(Logic.User.CustomerProfilePaginator)
 
       // Filter merchants based on search query
       const filteredCustomers = computed(() => {
@@ -149,12 +128,21 @@
         merchants.value = merchants.value.filter((m) => m.id !== merchantId)
       }
 
+      onMounted(() => {
+        // Logic.Auth.watchProperty(
+        //   "CustomerProfilePaginator",
+        //   CustomerProfilePaginator
+        // )
+
+        console.log("CustomerProfilePaginator", CustomerProfilePaginator)
+      })
       return {
         searchQuery,
         currentPage,
         itemsPerPage,
         totalItems,
         filteredCustomers,
+        CustomerProfilePaginator,
         suspendCustomer,
         handlePageChange,
         restoreCustomer,

@@ -13,18 +13,13 @@
           </div>
 
           <div class="h-full px-6">
-            <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
-              @update:page="handlePageChange"
-            />
+            <app-pagination @update:page="handlePageChange" />
           </div>
         </div>
       </app-table-header>
 
       <app-merchant-table
-        :merchants="filteredMerchants"
+        :merchants="MerchantProfilePaginator.data"
         @suspend="suspendMerchant"
         @restore="restoreMerchant"
         @delete="deleteMerchant"
@@ -42,6 +37,8 @@
     AppPagination,
     AppSearch,
   } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
+  import { PaginatorInfo } from "@greep/logic/src/gql/graphql"
 
   interface Merchant {
     id: number
@@ -60,85 +57,69 @@
       AppPagination,
       AppSearch,
     },
-    setup() {
-      const merchants = ref<Merchant[]>([
+    middlewares: {
+      fetchRules: [
         {
-          id: 1,
-          name: "Arlene McCoy",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
+          domain: "User",
+          property: "MerchantProfilePaginator",
+          method: "GetMerchantProfiles",
+          params: [],
+          requireAuth: true,
         },
-        {
-          id: 7,
-          name: "Cameron Williamson",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 8,
-          name: "Kristin Watson",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 9,
-          name: "Mcrory Adams",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 10,
-          name: "Stalline Dre",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-      ])
+      ],
+    },
 
+    setup() {
       const searchQuery = ref("")
       const currentPage = ref(1)
       const itemsPerPage = ref(10)
-      const totalItems = ref(50) // Total number of merchants
+      const totalItems = ref(50)
 
-      const filteredMerchants = computed(() => {
-        if (!searchQuery.value) return merchants.value
+      const MerchantProfilePaginator = ref(Logic.User.MerchantProfilePaginator)
+      const merchantsPagination = ref<PaginatorInfo>()
+      const merchants = ref<PaginatorInfo>()
 
-        const query = searchQuery.value.toLowerCase()
-        return merchants.value.filter((merchant) =>
-          merchant.name.toLowerCase().includes(query)
-        )
-      })
+      // const merchants = ref<Merchant[]>([
+      //   {
+      //     id: 1,
+      //     name: "Arlene McCoy",
+      //     avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+      //     joinedDate: "03/11/2024",
+      //     joinedTime: "19:06",
+      //     status: "active",
+      //   },
+      // ])
 
-      const suspendMerchant = (merchantId: number) => {
-        const merchant = merchants.value.find((m) => m.id === merchantId)
-        if (merchant) {
-          merchant.status = "suspended"
-        }
-      }
+      // const filteredMerchants = computed(() => {
+      //   if (!searchQuery.value) return merchants.value
 
-      const restoreMerchant = (merchantId: number) => {
-        const merchant = merchants.value.find((m) => m.id === merchantId)
-        if (merchant) {
-          merchant.status = "active"
-        }
-      }
+      //   const query = searchQuery.value.toLowerCase()
+      //   return merchants.value.filter((merchant) =>
+      //     merchant.name.toLowerCase().includes(query)
+      //   )
+      // })
 
-      const deleteMerchant = (merchantId: number) => {
-        merchants.value = merchants.value.filter((m) => m.id !== merchantId)
-      }
+      // const suspendMerchant = (merchantId: number) => {
+      //   const merchant = merchants.value.find((m) => m.id === merchantId)
+      //   if (merchant) {
+      //     merchant.status = "suspended"
+      //   }
+      // }
 
-      const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
-      }
+      // const restoreMerchant = (merchantId: number) => {
+      //   const merchant = merchants.value.find((m) => m.id === merchantId)
+      //   if (merchant) {
+      //     merchant.status = "active"
+      //   }
+      // }
+
+      // const deleteMerchant = (merchantId: number) => {
+      //   merchants.value = merchants.value.filter((m) => m.id !== merchantId)
+      // }
+
+      // const handlePageChange = (newPage: number) => {
+      //   currentPage.value = newPage
+      // }
 
       return {
         merchants,
@@ -146,11 +127,13 @@
         currentPage,
         itemsPerPage,
         totalItems,
-        filteredMerchants,
-        suspendMerchant,
-        restoreMerchant,
-        deleteMerchant,
-        handlePageChange,
+        // filteredMerchants,
+        MerchantProfilePaginator,
+        // suspendMerchant,
+        // restoreMerchant,
+        // deleteMerchant,
+        // handlePageChange,
+        merchantsPagination,
       }
     },
   })

@@ -57,14 +57,12 @@
         </div>
       </app-table-header>
 
-     
-        <!-- :admins="admins" -->
+      <!-- :admins="admins" -->
       <app-admin-table
         :admins="AdminProfilePaginator.data"
         @change-role="changeRole"
         @remove="deleteCustomer"
       />
- 
     </app-table-container>
   </dashboard-layout>
 </template>
@@ -112,7 +110,7 @@
         {
           domain: "User",
           property: "AdminProfilePaginator",
-          method: "GetAllAdminProfiles",
+          method: "GetAdminProfiles",
           params: [],
           requireAuth: true,
         },

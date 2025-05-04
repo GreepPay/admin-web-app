@@ -82,7 +82,20 @@
       AppModal,
       AppTransactionDetails,
     },
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "Wallet",
+          property: "AllWalletPaginator",
+          method: "GetWallets",
+          params: [],
+          requireAuth: true,
+        },
+      ],
+    },
+
     setup() {
+      const AllWalletPaginator = ref(Logic.Wallet.AllWalletPaginator)
       const selectedFilterOption = ref("all_time")
       const activeTab = ref("all")
       const showDetails = ref(false)
@@ -159,6 +172,7 @@
         seeHistory,
         handlePageChange,
         freezeUser,
+        AllWalletPaginator,
       }
     },
   })
