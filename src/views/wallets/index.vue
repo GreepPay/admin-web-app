@@ -23,9 +23,7 @@
 
           <div class="h-full px-6">
             <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="WalletPaginator.paginatorInfo"
               @update:page="handlePageChange"
             />
           </div>
@@ -33,7 +31,7 @@
       </app-table-header>
 
       <app-wallet-table
-        :users="filteredUsers"
+        :wallets="WalletPaginator.data"
         @see-history="seeHistory"
         @freeze="freezeUser"
       />
@@ -42,7 +40,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, computed } from "vue"
+  import { defineComponent, ref, computed, onMounted } from "vue"
   import {
     AppWalletTable,
     AppDropdown,
@@ -86,16 +84,26 @@
       fetchRules: [
         {
           domain: "Wallet",
-          property: "AllWalletPaginator",
+          property: "WalletPaginator",
           method: "GetWallets",
-          params: [],
+          params: [10, 1],
           requireAuth: true,
         },
       ],
     },
 
     setup() {
-      const AllWalletPaginator = ref(Logic.Wallet.AllWalletPaginator)
+      // constants
+      const itemsPerPage = 10
+      const tabs = [
+        { key: "all", label: "All" },
+        { key: "users", label: "Merchants" },
+        { key: "customers", label: "Customers" },
+      ]
+
+      //
+      const WalletPaginator = ref(Logic.Wallet.WalletPaginator)
+      const searchQuery = ref("")
       const selectedFilterOption = ref("all_time")
       const activeTab = ref("all")
       const showDetails = ref(false)
@@ -106,12 +114,6 @@
         { label: "This Week", value: "weekly" },
         { label: "This Month", value: "monthly" },
         { label: "This Year", value: "yearly" },
-      ]
-
-      const tabs = [
-        { key: "all", label: "All" },
-        { key: "users", label: "Merchants" },
-        { key: "customers", label: "Customers" },
       ]
 
       const users = ref<WalletUser[]>([
@@ -131,11 +133,6 @@
         },
       ])
 
-      const searchQuery = ref("")
-      const currentPage = ref(1)
-      const itemsPerPage = ref(10)
-      const totalItems = ref(50)
-
       const filteredUsers = computed(() => {
         if (!searchQuery.value) return users.value
         const query = searchQuery.value.toLowerCase()
@@ -150,29 +147,32 @@
       }
 
       const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
+        Logic.Wallet.GetWallets(itemsPerPage, newPage)
       }
 
       const freezeUser = (merchantId: string) => {
         users.value = users.value.filter((m) => m.id !== merchantId)
       }
 
+      // Watch property
+      onMounted(() => {
+        Logic.Wallet.watchProperty("WalletPaginator", WalletPaginator)
+      })
+
       return {
         users,
         searchQuery,
-        currentPage,
         itemsPerPage,
-        totalItems,
         filteredUsers,
         activeTab,
         selectedFilterOption,
         dropdownOptions,
         tabs,
         showDetails,
+        WalletPaginator,
         seeHistory,
         handlePageChange,
         freezeUser,
-        AllWalletPaginator,
       }
     },
   })

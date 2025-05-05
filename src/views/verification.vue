@@ -14,22 +14,20 @@
 
           <div class="h-full px-6">
             <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="VerificationPaginator.paginatorInfo"
               @update:page="handlePageChange"
             />
           </div>
         </div>
       </app-table-header>
 
-      <app-verification-table :verifications="verifications" />
+      <app-verification-table :verifications="VerificationPaginator.data" />
     </app-table-container>
   </dashboard-layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from "vue"
+  import { defineComponent, ref, onMounted } from "vue"
   import {
     AppVerificationTable,
     AppTableHeader,
@@ -37,6 +35,7 @@
     AppPagination,
     AppSearch,
   } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
 
   interface Withdrawal {
     id: number
@@ -53,56 +52,61 @@
       AppPagination,
       AppSearch,
     },
-    setup() {
-      const verifications: Withdrawal[] = [
+    middlewares: {
+      fetchRules: [
         {
-          id: 1,
-          name: "Arlene McCoy",
-          avatar: "https://i.pravatar.cc/100?img=1",
-          status: "active",
+          domain: "Verification",
+          property: "VerificationPaginator",
+          method: "GetVerificationRequests",
+          params: [10, 1],
+          requireAuth: true,
         },
-        {
-          id: 2,
-          name: "Floyd Miles",
-          avatar: "https://i.pravatar.cc/100?img=2",
-          status: "suspended",
-        },
-        {
-          id: 3,
-          name: "Ralph Edwards",
-          avatar: "https://i.pravatar.cc/100?img=3",
-          status: "active",
-        },
-        {
-          id: 4,
-          name: "Jerome Bell",
-          avatar: "https://i.pravatar.cc/100?img=4",
-          status: "suspended",
-        },
-        {
-          id: 5,
-          name: "Eleanor Pena",
-          avatar: "https://i.pravatar.cc/100?img=5",
-          status: "active",
-        },
-      ]
+      ],
+    },
 
+    setup() {
+      // constants
+      const itemsPerPage = 10
+
+      // reactives
       const searchQuery = ref("")
       const currentPage = ref(1)
-      const itemsPerPage = ref(10)
       const totalItems = ref(50)
+      const VerificationPaginator = ref(
+        Logic.Verification.VerificationPaginator
+      )
 
+      // Methods for handling merchant actions
       const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
+        Logic.Verification.GetVerificationRequests(itemsPerPage, newPage)
       }
 
+      const suspendCustomer = (merchantId: number) => {
+        console.log("merchantId", merchantId)
+      }
+
+      const restoreCustomer = (merchantId: string) => {
+        console.log("merchantId", merchantId)
+      }
+
+      const deleteCustomer = (merchantId: string) => {
+        console.log("merchantId", merchantId)
+      }
+
+      onMounted(() => {
+        Logic.User.watchProperty("VerificationPaginator", VerificationPaginator)
+      })
+
       return {
-        verifications,
         searchQuery,
         currentPage,
         itemsPerPage,
         totalItems,
+        VerificationPaginator,
         handlePageChange,
+        deleteCustomer,
+        restoreCustomer,
+        suspendCustomer,
       }
     },
   })

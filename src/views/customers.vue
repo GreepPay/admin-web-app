@@ -12,9 +12,7 @@
 
           <div class="h-full px-6">
             <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="CustomerProfilePaginator.paginatorInfo"
               @update:page="handlePageChange"
             />
           </div>
@@ -22,15 +20,11 @@
       </app-table-header>
 
       <app-customer-table
-        :customers="CustomerProfilePaginator.data"
+        :customers="filteredCustomers"
         @suspend="suspendCustomer"
         @restore="restoreCustomer"
         @delete="deleteCustomer"
       />
-
-      <pre>
-            {{ CustomerProfilePaginator }}
-      </pre>
     </app-table-container>
   </dashboard-layout>
 </template>
@@ -45,15 +39,6 @@
     AppSearch,
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
-
-  interface Merchant {
-    id: number
-    name: string
-    avatar: string
-    joinedDate: string
-    joinedTime: string
-    status: "active" | "suspended"
-  }
 
   export default defineComponent({
     name: "CustomersPage",
@@ -71,76 +56,62 @@
           domain: "User",
           property: "CustomerProfilePaginator",
           method: "GetCustomerProfiles",
-          params: [],
+          params: [10, 1],
           requireAuth: true,
         },
       ],
     },
     setup() {
-      const merchants = ref<Merchant[]>([
-        {
-          id: 1,
-          name: "Arlene McCoy",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-      ])
+      // constants
+      const itemsPerPage = 10
 
+      // reactives
       const searchQuery = ref("")
-      const currentPage = ref(1)
-      const itemsPerPage = ref(10)
-      const totalItems = ref(50) // Total number of merchants
-
       const CustomerProfilePaginator = ref(Logic.User.CustomerProfilePaginator)
 
-      // Filter merchants based on search query
+      // computed
       const filteredCustomers = computed(() => {
-        if (!searchQuery.value) return merchants.value
+        const query = searchQuery.value.trim().toLowerCase()
+        if (!query) return CustomerProfilePaginator.value.data
 
-        const query = searchQuery.value.toLowerCase()
-        return merchants.value.filter((merchant) =>
-          merchant.name.toLowerCase().includes(query)
-        )
+        return CustomerProfilePaginator.value.data.filter((profile) => {
+          const { first_name, last_name } = profile.user
+          const fullName = `${first_name} ${last_name}`.toLowerCase()
+
+          return (
+            first_name.toLowerCase().includes(query) ||
+            last_name.toLowerCase().includes(query) ||
+            fullName.includes(query)
+          )
+        })
       })
 
       // Methods for handling merchant actions
-      const suspendCustomer = (merchantId: number) => {
-        const merchant = merchants.value.find((m) => m.id === merchantId)
-        if (merchant) {
-          merchant.status = "suspended"
-        }
-      }
-
       const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
+        Logic.User.GetCustomerProfiles(itemsPerPage, newPage)
       }
 
-      const restoreCustomer = (merchantId: number) => {
-        const merchant = merchants.value.find((m) => m.id === merchantId)
-        if (merchant) {
-          merchant.status = "active"
-        }
+      const suspendCustomer = (merchantId: number) => {
+        console.log("merchantId", merchantId)
       }
 
-      const deleteCustomer = (merchantId: number) => {
-        merchants.value = merchants.value.filter((m) => m.id !== merchantId)
+      const restoreCustomer = (merchantId: string) => {
+        console.log("merchantId", merchantId)
       }
 
+      const deleteCustomer = (merchantId: string) => {
+        console.log("merchantId", merchantId)
+      }
+
+      // Watch property
       onMounted(() => {
-        // Logic.Auth.watchProperty(
-        //   "CustomerProfilePaginator",
-        //   CustomerProfilePaginator
-        // )
-
-        console.log("CustomerProfilePaginator", CustomerProfilePaginator)
+        Logic.User.watchProperty(
+          "CustomerProfilePaginator",
+          CustomerProfilePaginator
+        )
       })
       return {
         searchQuery,
-        currentPage,
-        itemsPerPage,
-        totalItems,
         filteredCustomers,
         CustomerProfilePaginator,
         suspendCustomer,

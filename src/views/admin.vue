@@ -12,9 +12,7 @@
 
           <div class="h-full px-6">
             <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="AdminProfilePaginator.paginatorInfo"
               @update:page="handlePageChange"
             />
           </div>
@@ -29,7 +27,7 @@
               placeholder="Enter email"
               ref="email"
               name="Email"
-              v-model="formData.email"
+              v-model="email"
               :show-validation-message="false"
               custom-class="border-none !text-green"
               input-style="!font-normal"
@@ -50,6 +48,7 @@
             <app-button
               variant="primary"
               custom-class="w-full !py-4.5 !bg-black !rounded-none"
+              @click="makeNewAdmin"
             >
               Make Admin
             </app-button>
@@ -57,18 +56,17 @@
         </div>
       </app-table-header>
 
-      <!-- :admins="admins" -->
       <app-admin-table
         :admins="AdminProfilePaginator.data"
-        @change-role="changeRole"
-        @remove="deleteCustomer"
+        @change-role="changeAdminRole"
+        @remove="removeAdmin"
       />
     </app-table-container>
   </dashboard-layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, reactive, onMounted } from "vue"
+  import { defineComponent, ref, onMounted } from "vue"
   import {
     AppAdminTable,
     AppTableHeader,
@@ -80,17 +78,6 @@
     AppDropdown,
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
-
-  type AdminRole = "super-admin" | "admin" | "moderator" | "user" | null
-
-  interface Admin {
-    id: number
-    name: string
-    avatar: string
-    role: AdminRole
-    joinedDate: string
-    joinedTime: string
-  }
 
   export default defineComponent({
     name: "AdminUsersPage",
@@ -111,65 +98,14 @@
           domain: "User",
           property: "AdminProfilePaginator",
           method: "GetAdminProfiles",
-          params: [],
+          params: [10, 1],
           requireAuth: true,
         },
       ],
     },
     setup() {
-      const admins = ref<Admin[]>([
-        {
-          id: 1,
-          name: "Ralph Edwards",
-          avatar: "https://i.pravatar.cc/100?img=1",
-          role: "super-admin",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-        {
-          id: 2,
-          name: "Floyd Miles",
-          avatar: "https://i.pravatar.cc/100?img=2",
-          role: "admin",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-        {
-          id: 3,
-          name: "Arlene McCoy",
-          avatar: "https://i.pravatar.cc/100?img=3",
-          role: "moderator",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-        {
-          id: 332,
-          name: "Arlene McCoy",
-          avatar: "https://i.pravatar.cc/100?img=8",
-          role: "user",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-        {
-          id: 23,
-          name: "Arlene McCoy",
-          avatar: "https://i.pravatar.cc/100?img=6",
-          role: null,
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-      ])
-
-      const searchQuery = ref("")
-      const currentPage = ref(1)
-      const itemsPerPage = ref(10)
-      const totalItems = ref(50)
-      const formData = reactive({
-        email: "",
-      })
-
-      const selectedRole = ref(null)
-
+      // constants
+      const itemsPerPage = 10
       const roleOptions = [
         { label: "Super Admin", value: "super-admin" },
         { label: "Admin", value: "admin" },
@@ -177,39 +113,44 @@
         { label: "User", value: "user" },
       ]
 
-      const changeRole = (user: Admin) => {
-        console.log(user)
-      }
-      const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
-      }
-
-      const adminUsers = ref([])
-
-      const GetAllAdminProfiles = async () => {
-        const response = await Logic.User.GetAllAdminProfiles()
-        console.log("response", response)
-        adminUsers.value = response.data
-      }
-
+      // reactives
+      const searchQuery = ref("")
+      const selectedRole = ref(null)
+      const email = ref("")
       const AdminProfilePaginator = ref(Logic.User.AdminProfilePaginator)
 
-      onMounted(async () => {
+      // Methods for handling merchant actions
+      const makeNewAdmin = () => {
+        console.log("make neww admin")
+      }
+
+      const handlePageChange = (newPage: number) => {
+        Logic.User.GetAdminProfiles(itemsPerPage, newPage)
+      }
+
+      const changeAdminRole = (user: any) => {
+        console.log("merchantId", user)
+      }
+
+      const removeAdmin = (user: any) => {
+        console.log("merchantId", user)
+      }
+
+      // Watch property
+      onMounted(() => {
         Logic.User.watchProperty("AdminProfilePaginator", AdminProfilePaginator)
-        // await GetAllAdminProfiles()
       })
 
       return {
-        admins,
         searchQuery,
-        currentPage,
-        formData,
+        email,
         selectedRole,
         roleOptions,
-        adminUsers,
-        changeRole,
-        handlePageChange,
         AdminProfilePaginator,
+        makeNewAdmin,
+        removeAdmin,
+        changeAdminRole,
+        handlePageChange,
       }
     },
   })
