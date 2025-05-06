@@ -15,6 +15,32 @@
 
         <app-text-field
           :has-title="false"
+          type="text"
+          placeholder="First Name"
+          ref="first_name"
+          name="First Name"
+          use-floating-label
+          v-model="formData.password"
+          :rules="[FormValidations.RequiredRule]"
+          inputStyle="text-sm"
+        >
+        </app-text-field>
+
+        <app-text-field
+          :has-title="false"
+          type="text"
+          placeholder="Last Name"
+          ref="last_name"
+          name="Last Name"
+          use-floating-label
+          v-model="formData.password"
+          :rules="[FormValidations.RequiredRule]"
+          inputStyle="text-sm"
+        >
+        </app-text-field>
+
+        <app-text-field
+          :has-title="false"
           type="password"
           placeholder="Password"
           ref="password"
@@ -83,6 +109,8 @@
       const formComponent = ref<any>(null)
 
       const formData = reactive({
+        first_name: "",
+        last_name: "",
         password: "",
         confirm_password: "",
       })
@@ -91,20 +119,20 @@
 
       const handleSignUp = async () => {
         const state = formComponent.value?.validate()
-        console.log("state", state)
 
         if (state) {
           loadingState.value = true
           Logic.Auth.ActivateAccountPayload = {
-            email: "archyscript@gmail.com",
-            first_name: "Archy",
-            last_name: "Script",
-            otp: "733417",
+            email: "yungdansa@gmail.com",
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            otp: "492477",
             password: formData.password,
           }
 
           try {
             await Logic.Auth.ActivateAdminAccount(true)
+            Logic.Common.GoToRoute("/auth/login")
           } catch (err) {
           } finally {
             loadingState.value = false

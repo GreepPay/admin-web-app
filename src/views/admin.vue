@@ -91,6 +91,7 @@
     AppTextField,
     AppButton,
     AppDropdown,
+    AppFormWrapper,
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
 
@@ -105,6 +106,7 @@
       AppTextField,
       AppButton,
       AppDropdown,
+      AppFormWrapper,
     },
 
     middlewares: {
@@ -134,16 +136,15 @@
       const loadingState = ref(false)
       const searchQuery = ref("")
       const selectedRole = ref(null)
-      const formData = reactive({ email: "" })
+      const formData = reactive({ email: "dasaoludanieloluwatoyin@gmail.com" })
 
       const AdminProfilePaginator = ref(Logic.User.AdminProfilePaginator)
 
       // Methods for handling merchant actions
       const makeNewAdmin = async () => {
         if (!selectedRole) return
-
         loadingState.value = true
-        // const state = formComponent.value?.validate()
+        const state = formComponent.value?.validate()
 
         if (!formData.email) return console.log("Test")
 
