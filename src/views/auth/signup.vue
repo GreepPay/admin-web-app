@@ -7,7 +7,7 @@
             <span class="text-light-black"> ID </span>
           </template>
           <template #inner-suffix>
-            <span class="text-light-black"> scrpt@gmail.com </span>
+            <span class="text-light-black"> archyscript@gmail.com </span>
           </template>
         </app-text-field>
 
@@ -48,8 +48,9 @@
       <!-- Button -->
       <div class="w-full flex flex-col items-center justify-center pt-5">
         <app-button
-          @click.prevent="Logic.Common.GoToRoute('/dashboards')"
+          @click.prevent="handleSignUp"
           class="w-full !py-4"
+          :loading="loadingState"
         >
           Sign Up
         </app-button>
@@ -86,11 +87,37 @@
         confirm_password: "",
       })
 
+      const loadingState = ref(false)
+
+      const handleSignUp = async () => {
+        const state = formComponent.value?.validate()
+        console.log("state", state)
+
+        if (state) {
+          loadingState.value = true
+          Logic.Auth.ActivateAccountPayload = {
+            email: "archyscript@gmail.com",
+            first_name: "Archy",
+            last_name: "Script",
+            otp: "733417",
+            password: formData.password,
+          }
+
+          try {
+            await Logic.Auth.ActivateAdminAccount(true)
+          } catch (err) {
+          } finally {
+            loadingState.value = false
+          }
+        }
+      }
+
       return {
         FormValidations,
-        Logic,
         formData,
         formComponent,
+        loadingState,
+        handleSignUp,
       }
     },
     data() {

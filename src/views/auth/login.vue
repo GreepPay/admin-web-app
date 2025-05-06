@@ -92,24 +92,9 @@
 
           try {
             await Logic.Auth.SignIn(true)
-            // await Logic.Auth.GetAuthUser()
-            Logic.Common.GoToRoute("/dashboards")
+            await Logic.Auth.GetAuthUser()
 
-            // Check if passcode has been set
-            // if (localStorage.getItem("auth_passcode")) {
-            //   Logic.Common.GoToRoute("/")
-            // } else {
-            //   // Save auth email and pass
-            //   // localStorage.setItem(
-            //   //   "auth_email",
-            //   //   Logic.Auth.SignInPayload?.email || ""
-            //   // )
-            //   // localStorage.setItem(
-            //   //   "auth_pass",
-            //   //   Logic.Auth.SignInPayload?.password || ""
-            //   // )
-            //   // Logic.Common.GoToRoute("/auth/set-passcode")
-            // }
+            Logic.Common.GoToRoute("/dashboards")
           } catch (err) {
           } finally {
             loadingState.value = false

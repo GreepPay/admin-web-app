@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from "vue"
+  import { defineComponent, ref, onMounted } from "vue"
   import { AppAvatar, AppIcon } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
 
@@ -36,6 +36,10 @@
     },
     setup() {
       const AuthUser = ref(Logic.Auth.AuthUser)
+
+      onMounted(() => {
+        Logic.Auth.watchProperty("AuthUser", AuthUser)
+      })
 
       return { AuthUser }
     },

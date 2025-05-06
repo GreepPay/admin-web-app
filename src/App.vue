@@ -33,24 +33,18 @@
 
       const handleMountActions = () => {
         const currentAuthUser = Logic.Auth.AuthUser
-
         // If user is authenticated
         if (currentAuthUser) {
           Logic.Auth.GetAuthUser()
-          if (localStorage.getItem("auth_passcode")) {
-            Logic.Common.GoToRoute("/auth/login")
-          }
         } else {
-          if (!window.location.pathname.includes("/auth")) {
-            Logic.Common.GoToRoute("/auth/signup")
-          }
+          // Logic.Common.GoToRoute("/auth/login")
+          // const isAuthPage = window.location.pathname.includes("/auth")
+          // if (!isAuthPage) Logic.Common.GoToRoute("/auth/signup")
+          // else Logic.Common.GoToRoute("/auth/login")
         }
       }
 
-      onMounted(() => {
-        // handleMountActions()
-        // Register watchers
-      })
+      onMounted(() => handleMountActions())
 
       return {}
     },
