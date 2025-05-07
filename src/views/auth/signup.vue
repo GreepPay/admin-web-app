@@ -7,12 +7,13 @@
             <span class="text-light-black"> ID </span>
           </template>
           <template #inner-suffix>
-            <span class="text-light-black"> archyscript@gmail.com </span>
+            <span class="text-light-black"> {{ formData.email }} </span>
           </template>
         </app-text-field>
 
         <AppDivider type="horizontal" customClass="!mb-5" />
 
+        <!-- <div class="flex items-center gap-4"> -->
         <app-text-field
           :has-title="false"
           type="text"
@@ -38,6 +39,20 @@
           inputStyle="text-sm"
         >
         </app-text-field>
+
+        <app-text-field
+          :has-title="false"
+          type="text"
+          placeholder="Enter One Time Password (OTP)"
+          ref="otp"
+          name="One Time Password"
+          use-floating-label
+          v-model="formData.otp"
+          :rules="[FormValidations.RequiredRule]"
+          inputStyle="text-sm"
+        >
+        </app-text-field>
+        <!-- </div> -->
 
         <app-text-field
           :has-title="false"
@@ -86,7 +101,8 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, ref } from "vue"
+  import { defineComponent, reactive, ref, onMounted } from "vue"
+
   import {
     AppFormWrapper,
     AppTextField,
@@ -94,6 +110,7 @@
     AppDivider,
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
+  import { useRoute } from "vue-router"
 
   export default defineComponent({
     components: {
@@ -105,13 +122,16 @@
     props: {},
     name: "AuthSignUp",
     setup() {
+      const route = useRoute()
       const FormValidations = Logic.Form
       const formComponent = ref<any>(null)
 
       const formData = reactive({
+        email: "",
         first_name: "",
         last_name: "",
         password: "",
+        otp: "",
         confirm_password: "",
       })
 
@@ -120,25 +140,37 @@
       const handleSignUp = async () => {
         const state = formComponent.value?.validate()
 
-        loadingState.value = true
-        Logic.Auth.ActivateAccountPayload = {
-          email: "archyscript@gmail.com",
-          first_name: "tlfdfdf",
-          last_name: "gfhjk",
-          otp: "546857",
-          password: formData.password,
-        }
+        if (state) {
+          loadingState.value = true
+          Logic.Auth.ActivateAccountPayload = {
+            email: formData.email,
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            otp: formData.otp,
+            password: formData.password,
+          }
 
-        try {
-          await Logic.Auth.ActivateAdminAccount(true)
-          Logic.Common.GoToRoute("/auth/login")
-        } catch (err) {
-        } finally {
-          loadingState.value = false
+          console.log(
+            "  Logic.Auth.ActivateAccountPayload ",
+            Logic.Auth.ActivateAccountPayload
+          )
+
+          try {
+            await Logic.Auth.ActivateAdminAccount(true)
+            Logic.Common.GoToRoute("/auth/login")
+          } catch (err) {
+          } finally {
+            loadingState.value = false
+          }
         }
-        // if (state) {
-        // }
       }
+
+      onMounted(() => {
+        const email = route.query.email as string
+
+        if (!email) return Logic.Auth.AdminLogout()
+        else formData.email = email
+      })
 
       return {
         FormValidations,
