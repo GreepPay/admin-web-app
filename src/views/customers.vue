@@ -20,7 +20,7 @@
       </app-table-header>
 
       <app-customer-table
-        :customers="filteredCustomers"
+        :customers="CustomerProfilePaginator.data"
         @suspend="suspendCustomer"
         @restore="restoreCustomer"
         @delete="deleteCustomer"
@@ -70,21 +70,21 @@
       const CustomerProfilePaginator = ref(Logic.User.CustomerProfilePaginator)
 
       // computed
-      const filteredCustomers = computed(() => {
-        const query = searchQuery.value.trim().toLowerCase()
-        if (!query) return CustomerProfilePaginator.value.data
+      // const filteredCustomers = computed(() => {
+      //   const query = searchQuery.value.trim().toLowerCase()
+      //   if (!query) return CustomerProfilePaginator.value.data
 
-        return CustomerProfilePaginator.value.data.filter((profile) => {
-          const { first_name, last_name } = profile.user
-          const fullName = `${first_name} ${last_name}`.toLowerCase()
+      //   return CustomerProfilePaginator.value.data.filter((profile) => {
+      //     const { first_name, last_name } = profile.user
+      //     const fullName = `${first_name} ${last_name}`.toLowerCase()
 
-          return (
-            first_name.toLowerCase().includes(query) ||
-            last_name.toLowerCase().includes(query) ||
-            fullName.includes(query)
-          )
-        })
-      })
+      //     return (
+      //       first_name.toLowerCase().includes(query) ||
+      //       last_name.toLowerCase().includes(query) ||
+      //       fullName.includes(query)
+      //     )
+      //   })
+      // })
 
       // Methods for handling merchant actions
       const handlePageChange = (newPage: number) => {
@@ -112,7 +112,7 @@
       })
       return {
         searchQuery,
-        filteredCustomers,
+        // filteredCustomers,
         CustomerProfilePaginator,
         suspendCustomer,
         handlePageChange,

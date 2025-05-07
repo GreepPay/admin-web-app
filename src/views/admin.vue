@@ -136,7 +136,7 @@
       const loadingState = ref(false)
       const searchQuery = ref("")
       const selectedRole = ref(null)
-      const formData = reactive({ email: "dasaoludanieloluwatoyin@gmail.com" })
+      const formData = reactive({ email: "" })
 
       const AdminProfilePaginator = ref(Logic.User.AdminProfilePaginator)
 

@@ -55,7 +55,10 @@
     <div
       class="h-[76px] border-t border-light-gray-two bg-white flex items-center px-6"
     >
-      <button class="space-x-2 flex items-center w-full">
+      <button
+        class="space-x-2 flex items-center w-full"
+        @click="Logic.Auth.AdminLogout()"
+      >
         <app-icon name="logout" custom-class="h-6 text-sm" />
         <span>Log out</span>
       </button>

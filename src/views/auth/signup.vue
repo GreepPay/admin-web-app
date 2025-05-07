@@ -20,7 +20,7 @@
           ref="first_name"
           name="First Name"
           use-floating-label
-          v-model="formData.password"
+          v-model="formData.first_name"
           :rules="[FormValidations.RequiredRule]"
           inputStyle="text-sm"
         >
@@ -33,7 +33,7 @@
           ref="last_name"
           name="Last Name"
           use-floating-label
-          v-model="formData.password"
+          v-model="formData.last_name"
           :rules="[FormValidations.RequiredRule]"
           inputStyle="text-sm"
         >
@@ -120,24 +120,24 @@
       const handleSignUp = async () => {
         const state = formComponent.value?.validate()
 
-        if (state) {
-          loadingState.value = true
-          Logic.Auth.ActivateAccountPayload = {
-            email: "yungdansa@gmail.com",
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            otp: "492477",
-            password: formData.password,
-          }
-
-          try {
-            await Logic.Auth.ActivateAdminAccount(true)
-            Logic.Common.GoToRoute("/auth/login")
-          } catch (err) {
-          } finally {
-            loadingState.value = false
-          }
+        loadingState.value = true
+        Logic.Auth.ActivateAccountPayload = {
+          email: "archyscript@gmail.com",
+          first_name: "tlfdfdf",
+          last_name: "gfhjk",
+          otp: "546857",
+          password: formData.password,
         }
+
+        try {
+          await Logic.Auth.ActivateAdminAccount(true)
+          Logic.Common.GoToRoute("/auth/login")
+        } catch (err) {
+        } finally {
+          loadingState.value = false
+        }
+        // if (state) {
+        // }
       }
 
       return {

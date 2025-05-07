@@ -14,27 +14,20 @@
 
           <div class="h-full px-6">
             <AppPagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="WithdrawalsPaginator.paginatorInfo"
               @update:page="handlePageChange"
             />
           </div>
         </div>
       </AppTableHeader>
 
-      <AppWithdrawalTable
-        :withdrawals="withdrawals"
-        @suspend="suspendMerchant"
-        @restore="restoreMerchant"
-        @delete="deleteMerchant"
-      />
+      <AppWithdrawalTable :withdrawals="WithdrawalsPaginator.data" />
     </AppTableContainer>
   </dashboard-layout>
 </template>
 
-<script setup lang="ts">
-  import { ref, computed, onMounted } from "vue"
+<script lang="ts">
+  import { defineComponent, ref, computed, onMounted } from "vue"
   import {
     AppWithdrawalTable,
     AppTableHeader,
@@ -42,57 +35,84 @@
     AppPagination,
     AppSearch,
   } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
 
-  interface Withdrawal {
-    id: number
-    name: string
-    avatar: string
-    amount: string
-    status: "active" | "suspended"
-  }
-  const withdrawals: Withdrawal[] = [
-    {
-      id: 1,
-      name: "Arlene McCoy",
-      avatar: "https://i.pravatar.cc/100?img=1",
-      amount: "$300",
-      status: "active",
+  export default defineComponent({
+    name: "WithdrawalsPage",
+    components: {
+      AppWithdrawalTable,
+      AppTableHeader,
+      AppTableContainer,
+      AppPagination,
+      AppSearch,
     },
-    {
-      id: 2,
-      name: "Floyd Miles",
-      avatar: "https://i.pravatar.cc/100?img=2",
-      amount: "$300",
-      status: "suspended",
-    },
-    {
-      id: 3,
-      name: "Ralph Edwards",
-      avatar: "https://i.pravatar.cc/100?img=3",
-      amount: "$300",
-      status: "active",
-    },
-    {
-      id: 4,
-      name: "Jerome Bell",
-      avatar: "https://i.pravatar.cc/100?img=4",
-      amount: "$300",
-      status: "suspended",
-    },
-    {
-      id: 5,
-      name: "Eleanor Pena",
-      avatar: "https://i.pravatar.cc/100?img=5",
-      amount: "$300",
-      status: "active",
-    },
-  ]
-  const searchQuery = ref("")
-  const currentPage = ref(1)
-  const itemsPerPage = ref(10)
-  const totalItems = ref(50)
 
-  const handlePageChange = (newPage: number) => {
-    currentPage.value = newPage
-  }
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "Transaction",
+          property: "WithdrawalsPaginator",
+          method: "GetWithdrawals",
+          params: [10, 1],
+          requireAuth: true,
+        },
+      ],
+    },
+    setup() {
+      // constants
+      const itemsPerPage = 10
+
+      const searchQuery = ref("")
+      const WithdrawalsPaginator = ref(Logic.Transaction.WithdrawalsPaginator)
+
+      // computed
+      const filteredCustomers = computed(() => {
+        const query = searchQuery.value.trim().toLowerCase()
+        if (!query) return WithdrawalsPaginator.value.data
+
+        return WithdrawalsPaginator.value.data.filter((profile) => {
+          const { first_name, last_name } = profile.user
+          const fullName = `${first_name} ${last_name}`.toLowerCase()
+
+          return (
+            first_name.toLowerCase().includes(query) ||
+            last_name.toLowerCase().includes(query) ||
+            fullName.includes(query)
+          )
+        })
+      })
+
+      // Methods for handling merchant actions
+      const handlePageChange = (newPage: number) => {
+        Logic.Transaction.GetWithdrawals(itemsPerPage, newPage)
+      }
+
+      const suspendCustomer = (merchantId: number) => {
+        console.log("merchantId", merchantId)
+      }
+
+      const restoreCustomer = (merchantId: string) => {
+        console.log("merchantId", merchantId)
+      }
+
+      const deleteCustomer = (merchantId: string) => {
+        console.log("merchantId", merchantId)
+      }
+
+      // Watch property
+      onMounted(() => {
+        Logic.User.watchProperty("WithdrawalsPaginator", WithdrawalsPaginator)
+      })
+
+      return {
+        searchQuery,
+        filteredCustomers,
+        WithdrawalsPaginator,
+        suspendCustomer,
+        handlePageChange,
+        restoreCustomer,
+        deleteCustomer,
+      }
+    },
+  })
 </script>
