@@ -1,7 +1,11 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header title="Admin Users" right-side-class="flex-1">
+      <app-table-header
+        title="Admin Users"
+        right-side-class="flex-1"
+        :showRightSide="showRightSide"
+      >
         <div class="flex-1 flex items-center h-full">
           <div class="flex-1 px-4 h-full border-r flex items-center">
             <app-search
@@ -81,7 +85,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, onMounted, reactive } from "vue"
+  import { defineComponent, ref, onMounted, reactive, computed } from "vue"
   import {
     AppAdminTable,
     AppTableHeader,
@@ -116,6 +120,7 @@
           property: "AdminProfilePaginator",
           method: "GetAdminProfiles",
           params: [10, 1],
+          ignoreProperty: true,
           requireAuth: true,
         },
       ],
@@ -129,6 +134,11 @@
         { label: "Admin", value: "Admin" },
       ]
 
+      // computed
+      const showRightSide = computed(
+        () => AdminProfilePaginator.value.data.length  >= 1
+      )
+
       // reactives
       const AuthUser = ref(Logic.Auth.AuthUser)
       const formComponent = ref<any>(null)
@@ -140,18 +150,19 @@
 
       const AdminProfilePaginator = ref(Logic.User.AdminProfilePaginator)
 
-      // Methods for handling merchant actions
+      // Methods for handling merchant  actions
       const makeNewAdmin = async () => {
+        // formData.email = ""
+        resetForm()
         if (!selectedRole) return
         loadingState.value = true
-        const state = formComponent.value?.validate()
 
-        if (!formData.email) return console.log("Test")
+        const state = formComponent.value?.validate()
+        if (!formData.email) return
 
         try {
           await Logic.Auth.SignUp(formData.email)
           Logic.User.GetAdminProfiles(itemsPerPage, currentPageNumber.value)
-          formData.email = ""
         } catch (err) {
         } finally {
           loadingState.value = false
@@ -179,6 +190,10 @@
         console.log("amin", amin)
       }
 
+      const resetForm = () => {
+        formData.email = ""
+      }
+
       // Watch property
       onMounted(() => {
         Logic.User.watchProperty("AdminProfilePaginator", AdminProfilePaginator)
@@ -195,6 +210,7 @@
         FormValidations,
         formComponent,
         loadingState,
+        showRightSide,
         makeNewAdmin,
         removeAdmin,
         changeAdminRole,

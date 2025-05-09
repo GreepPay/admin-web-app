@@ -1,7 +1,11 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header title="Customers" right-side-class="flex-1">
+      <app-table-header
+        title="Customers"
+        right-side-class="flex-1"
+        :showRightSide="showRightSide"
+      >
         <div class="flex-1 flex items-center h-full">
           <div class="flex-1 border-r px-4 h-full border-r flex items-center">
             <app-search
@@ -19,12 +23,7 @@
         </div>
       </app-table-header>
 
-      <app-customer-table
-        :customers="CustomerProfilePaginator.data"
-        @suspend="suspendCustomer"
-        @restore="restoreCustomer"
-        @delete="deleteCustomer"
-      />
+      <app-customer-table :customers="CustomerProfilePaginator.data" />
     </app-table-container>
   </dashboard-layout>
 </template>
@@ -65,26 +64,14 @@
       // constants
       const itemsPerPage = 10
 
+      // computed
+      const showRightSide = computed(
+        () => CustomerProfilePaginator.value.data.length >= 1
+      )
+
       // reactives
       const searchQuery = ref("")
       const CustomerProfilePaginator = ref(Logic.User.CustomerProfilePaginator)
-
-      // computed
-      // const filteredCustomers = computed(() => {
-      //   const query = searchQuery.value.trim().toLowerCase()
-      //   if (!query) return CustomerProfilePaginator.value.data
-
-      //   return CustomerProfilePaginator.value.data.filter((profile) => {
-      //     const { first_name, last_name } = profile.user
-      //     const fullName = `${first_name} ${last_name}`.toLowerCase()
-
-      //     return (
-      //       first_name.toLowerCase().includes(query) ||
-      //       last_name.toLowerCase().includes(query) ||
-      //       fullName.includes(query)
-      //     )
-      //   })
-      // })
 
       // Methods for handling merchant actions
       const handlePageChange = (newPage: number) => {
@@ -112,8 +99,8 @@
       })
       return {
         searchQuery,
-        // filteredCustomers,
         CustomerProfilePaginator,
+        showRightSide,
         suspendCustomer,
         handlePageChange,
         restoreCustomer,

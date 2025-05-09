@@ -71,6 +71,7 @@
   import { useRoute } from "vue-router"
   import { Logic } from "@greep/logic"
   import { AppIcon } from "@greep/ui-components"
+  import { sidebarSections } from "../../utils/constants"
 
   export default defineComponent({
     name: "sidebar",
@@ -85,41 +86,6 @@
       const getActiveTab = (tabRoute: string) => {
         return route.fullPath.includes(tabRoute)
       }
-
-      const sidebarSections = ref([
-        {
-          title: "General",
-          items: [
-            { title: "Dashboards", icon: "dashboards", route: "/dashboards" },
-            { title: "Analytics", icon: "graph", route: "/analytics" },
-            { title: "Transactions", icon: "trend-up", route: "/transactions" },
-            { title: "Wallets", icon: "wallet-3", route: "/wallets" },
-          ],
-        },
-        {
-          title: "Accounts",
-          items: [
-            { title: "Merchant", icon: "building", route: "/merchants" },
-            { title: "Customer", icon: "user", route: "/customers" },
-            { title: "Admin", icon: "shield-security", route: "/admin" },
-          ],
-        },
-        {
-          title: "Merchant",
-          items: [
-            {
-              title: "Verification",
-              icon: "personal-card",
-              route: "/verification",
-            },
-            {
-              title: "Withdrawal",
-              icon: "money-recieve",
-              route: "/withdrawal",
-            },
-          ],
-        },
-      ])
 
       return {
         isSidebarOpen,

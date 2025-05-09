@@ -1,7 +1,7 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header right-side-class="flex-1" title-class="flex-1">
+      <app-table-header title-class="flex-1">
         <template #title>
           <div
             role="button"
@@ -18,7 +18,7 @@
           </div>
         </template>
 
-        <div class="flex-1 flex items-center h-full">
+        <!-- <div class="flex-1 flex items-center h-full">
           <div class="flex-1 flex items-center px-6 space-x-3 border-r">
             <img
               src="https://randomuser.me/api/portraits/men/32.jpg"
@@ -32,12 +32,15 @@
             <p class="font-normal text-black">Wallet Balance</p>
             <p class="font-bold text-black">$2,000.00</p>
           </div>
-        </div>
+        </div> -->
       </app-table-header>
 
-      <app-table-header title-class="flex-1 !py-0 !px-0">
+      <app-table-header
+        title-class="flex-1 !py-0 !px-0"
+        :showRightSide="showRightSide"
+      >
         <template #title>
-          <div>
+          <div class="w-full">
             <app-search
               placeholder="Search..."
               @update:search="searchQuery = $event"
@@ -53,10 +56,7 @@
         </div>
       </app-table-header>
 
-      <app-wallet-history-table
-        :users="WalletHistoryPaginator.data"
-        @see-history="seeHistory"
-      />
+      <app-wallet-history-table :transactions="WalletHistoryPaginator.data" />
     </app-table-container>
   </dashboard-layout>
 </template>
@@ -77,16 +77,7 @@
     AppTransactionDetails,
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
-
-  type UserType = "Merchant" | "Customer"
-
-  interface WalletUser {
-    id: string
-    name: string
-    type: UserType
-    avatar?: string
-    balance: number
-  }
+  import { useRoute } from "vue-router"
 
   export default defineComponent({
     components: {
@@ -110,58 +101,35 @@
           method: "GetWalletHistory",
           params: [10, 1],
           requireAuth: true,
+          ignoreProperty: true,
+          useRouteId: true,
         },
       ],
     },
     setup() {
       // constants
       const itemsPerPage = 10
+      const wallet_id = useRoute().params.id as string
+
+      // computed
+      const showRightSide = computed(
+        () => WalletHistoryPaginator.value.data.length >= 1
+      )
 
       // reactives
       const WalletHistoryPaginator = ref(
         Logic.Transaction.WalletHistoryPaginator
       )
       const searchQuery = ref("")
-      const selectedFilterOption = ref("all_time")
-      const activeTab = ref("all")
       const showDetails = ref(false)
 
-      const users = ref<WalletUser[]>([
-        {
-          id: "1",
-          name: "Arlene McCoy",
-          type: "Merchant",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          balance: 7400,
-        },
-        {
-          id: "2",
-          name: "Floyd Miles",
-          type: "Merchant",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          balance: 1380,
-        },
-      ])
-
-      // const filteredUsers = computed(() => {
-      //   if (!searchQuery.value) return users.value
-      //   const query = searchQuery.value.toLowerCase()
-      //   return users.value.filter((user) =>
-      //     user.name.toLowerCase().includes(query)
-      //   )
-      // })
-
-      const seeHistory = (id: string) => {
-        Logic.Common.GoToRoute(`/wallets/${id}`)
-      }
-
-      const freezeUser = (merchantId: string) => {
-        users.value = users.value.filter((m) => m.id !== merchantId)
+      const handlePageChange = (newPage: number) => {
+        Logic.Transaction.GetWalletHistory(wallet_id, itemsPerPage, newPage)
       }
 
       // Watch property
       onMounted(() => {
-        Logic.User.watchProperty(
+        Logic.Transaction.watchProperty(
           "WalletHistoryPaginator",
           WalletHistoryPaginator
         )
@@ -169,13 +137,12 @@
 
       return {
         Logic,
-        users,
         searchQuery,
         itemsPerPage,
         showDetails,
         WalletHistoryPaginator,
-        seeHistory,
-        freezeUser,
+        showRightSide,
+        handlePageChange,
       }
     },
   })

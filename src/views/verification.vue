@@ -1,7 +1,11 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header title="Verify Merchants" right-side-class="flex-1">
+      <app-table-header
+        title="Verify Merchants"
+        right-side-class="flex-1"
+        :showRightSide="showRightSide"
+      >
         <div class="w-full flex items-center h-full">
           <div
             class="flex-1 w-full border-r px-4 h-full border-r flex items-center"
@@ -27,7 +31,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, onMounted } from "vue"
+  import { defineComponent, ref, onMounted, computed } from "vue"
   import {
     AppVerificationTable,
     AppTableHeader,
@@ -36,13 +40,6 @@
     AppSearch,
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
-
-  interface Withdrawal {
-    id: number
-    name: string
-    avatar: string
-    status: "active" | "suspended"
-  }
 
   export default defineComponent({
     components: {
@@ -60,6 +57,7 @@
           method: "GetVerificationRequests",
           params: [10, 1],
           requireAuth: true,
+          ignoreProperty: true,
         },
       ],
     },
@@ -67,6 +65,11 @@
     setup() {
       // constants
       const itemsPerPage = 10
+
+      // computed
+      const showRightSide = computed(
+        () => VerificationPaginator.value.data.length >= 1
+      )
 
       // reactives
       const searchQuery = ref("")
@@ -107,6 +110,7 @@
         deleteCustomer,
         restoreCustomer,
         suspendCustomer,
+        showRightSide,
       }
     },
   })

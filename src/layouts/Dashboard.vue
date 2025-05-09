@@ -5,7 +5,7 @@
     </div>
 
     <main class="flex-1 bg-white">
-      <!-- <AppLoader v-if="loaderSetup.show" :setup="loaderSetup" /> -->
+      <AppLoader v-if="loaderSetup.show" :setup="loaderSetup" />
       <dashboard-header />
 
       <div class="container mx-auto p-6">
@@ -30,7 +30,7 @@
 
       onMounted(() => {
         // watchers
-        // Logic.Common.watchProperty("loaderSetup", loaderSetup)
+        Logic.Common.watchProperty("loaderSetup", loaderSetup)
       })
 
       return { AuthUser, loaderSetup }

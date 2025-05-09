@@ -1,7 +1,7 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header rightSideClass="flex-1">
+      <app-table-header rightSideClass="flex-1" :showRightSide="showRightSide">
         <template #title>
           <div class="flex items-center space-x-4">
             <h2
@@ -9,7 +9,7 @@
             >
               Transactions
             </h2>
-            <app-tabs :tabs="tabs" v-model:activeTab="activeTab" />
+            <!-- <app-tabs :tabs="tabs" v-model:activeTab="activeTab" /> -->
           </div>
         </template>
 
@@ -18,14 +18,14 @@
             <app-search
               placeholder="Search..."
               @update:search="searchQuery = $event"
+              @search="handleSearch(true)"
+              @clear-search="handleClearSearch"
             />
           </div>
 
           <div class="h-full px-6">
             <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="TransactionsPaginator.paginatorInfo"
               @update:page="handlePageChange"
             />
           </div>
@@ -33,11 +33,8 @@
       </app-table-header>
 
       <app-transaction-table
-        :transactions="transactions"
-        :currentPage="currentPage"
-        :itemsPerPage="itemsPerPage"
-        @delete="freezeTransaction"
-        @view="showDetails = true"
+        :transactions="TransactionsPaginator.data"
+        @view="handleView"
       />
     </app-table-container>
 
@@ -52,21 +49,32 @@
         <app-image-card-container>
           <div class="text-white text-center space-y-1">
             <p class="text-sm">Amount</p>
-            <h1 class="text-2xl font-medium">$200.00</h1>
+            <h1 class="text-2xl font-medium">
+              {{
+                `${selectedTransaction?.amount} ${selectedTransaction?.currency}`
+              }}
+            </h1>
           </div>
         </app-image-card-container>
 
         <app-transaction-details
-          :details="[{ title: 'Merchant', content: 'Timms Closet Ventures' }]"
+          :details="[
+            {
+              title: `${selectedTransaction?.user?.role?.name}`,
+              content: `${selectedTransaction.user?.first_name} ${selectedTransaction.user?.last_name}`,
+            },
+          ]"
         />
-        <app-transaction-details :details="paymentDetails" />
+        <app-transaction-details
+          :details="mapTransactionToPaymentDetails(selectedTransaction)"
+        />
       </div>
     </app-modal>
   </dashboard-layout>
 </template>
 
 <script lang="ts">
-  import { ref, defineComponent } from "vue"
+  import { ref, defineComponent, onMounted, computed } from "vue"
   import {
     AppTransactionTable,
     AppDropdown,
@@ -81,15 +89,9 @@
     AppTransactionDetails,
     AppImageCardContainer,
   } from "@greep/ui-components"
-
-  interface Merchant {
-    id: number
-    name: string
-    avatar: string
-    joinedDate: string
-    joinedTime: string
-    status: "active" | "suspended"
-  }
+  import { Logic } from "@greep/logic"
+  import { Transaction } from "@greep/logic/src/gql/graphql"
+  import { mapTransactionToPaymentDetails } from "../utils/constants"
 
   export default defineComponent({
     name: "AppTransactionPage",
@@ -107,73 +109,81 @@
       AppTransactionDetails,
       AppImageCardContainer,
     },
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "Transaction",
+          property: "TransactionsPaginator",
+          method: "GetTransactions",
+          params: [10, 1],
+          requireAuth: true,
+          ignoreProperty: true,
+        },
+      ],
+    },
     setup() {
-      const selectedFilterOption = ref("all_time")
-      const activeTab = ref("recents")
-      const showDetails = ref(false)
-
+      //
+      const itemsPerPage = 10
       const tabs = [
         { key: "all", label: "All" },
         { key: "merchants", label: "Merchants" },
         { key: "customers", label: "Customers" },
       ]
 
-      const transactions = ref<Merchant[]>([
-        {
-          id: 9,
-          name: "Mcrory Adams",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 10,
-          name: "Stalline Dre",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-      ])
+      // computed
+      const showRightSide = computed(
+        () => TransactionsPaginator.value.data.length >= 1
+      )
+
+      //
+      const TransactionsPaginator = ref(Logic.Transaction.TransactionsPaginator)
+      const activeTab = ref("recents")
+      const showDetails = ref(false)
+      const selectedTransaction = ref<Transaction | null>(null)
 
       const searchQuery = ref("")
-      const currentPage = ref(1)
-      const itemsPerPage = ref(10)
-      const totalItems = ref(50)
+      const currentPageNumber = ref(1)
 
-      const paymentDetails = [
-        { title: "Acc. Name", content: "Timmy Salami" },
-        { title: "Acc. Number", content: "134342333" },
-        { title: "Amount", content: "$ 200" },
-        { title: "Fee", content: "$ 2" },
-        { title: "Received", content: "$ 198" },
-        { title: "FeAcc. Number", content: "Feb 20, 2025 " },
-      ]
-
-      const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
+      const handleView = (transaction: Transaction) => {
+        selectedTransaction.value = transaction
+        showDetails.value = true
       }
 
-      const freezeTransaction = (merchantId: number) => {
-        transactions.value = transactions.value.filter(
-          (m) => m.id !== merchantId
+      const handleClearSearch = () => handleSearch(true)
+      const handlePageChange = (newPage: number) => {
+        currentPageNumber.value = newPage
+        handleSearch(false)
+      }
+      const handleSearch = (newSearch: Boolean) => {
+        const currentPage = !newSearch ? currentPageNumber.value : 1
+        Logic.Transaction.GetTransactions(
+          itemsPerPage,
+          currentPage,
+          searchQuery.value
         )
       }
 
+      // Watch property
+      onMounted(() => {
+        Logic.Transaction.watchProperty(
+          "TransactionsPaginator",
+          TransactionsPaginator
+        )
+      })
+
       return {
-        selectedFilterOption,
         activeTab,
         showDetails,
         tabs,
-        transactions,
         searchQuery,
-        currentPage,
-        itemsPerPage,
-        totalItems,
-        paymentDetails,
+        TransactionsPaginator,
+        selectedTransaction,
+        showRightSide,
         handlePageChange,
-        freezeTransaction,
+        handleView,
+        mapTransactionToPaymentDetails,
+        handleSearch,
+        handleClearSearch,
       }
     },
   })

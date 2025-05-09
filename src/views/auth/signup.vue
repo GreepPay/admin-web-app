@@ -4,7 +4,7 @@
       <div class="w-full flex flex-col space-y-5">
         <app-text-field inputStyle="text-sm" disabled>
           <template #inner-prefix>
-            <span class="text-light-black"> ID </span>
+            <span class="text-light-black"> Email </span>
           </template>
           <template #inner-suffix>
             <span class="text-light-black"> {{ formData.email }} </span>
@@ -102,7 +102,6 @@
 
 <script lang="ts">
   import { defineComponent, reactive, ref, onMounted } from "vue"
-
   import {
     AppFormWrapper,
     AppTextField,

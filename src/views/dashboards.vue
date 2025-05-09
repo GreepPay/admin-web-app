@@ -153,17 +153,20 @@
       ],
     },
     setup() {
-      const GeneralOverview = ref(Logic.Dashboard.GeneralOverview)
-      const MerchantOverview = ref(Logic.Dashboard.MerchantOverview)
-      const CustomerOverview = ref(Logic.Dashboard.CustomerOverview)
-      const TransactionOverview = ref(Logic.Dashboard.TransactionOverview)
-
+      // constants
       const filterOptions = [
         { label: "All Time", value: "" },
         { label: "Daily", value: "daily" },
         { label: "Weekly", value: "weekly" },
         { label: "Monthly", value: "monthly" },
       ]
+
+      // 
+      const GeneralOverview = ref(Logic.Dashboard.GeneralOverview)
+      const MerchantOverview = ref(Logic.Dashboard.MerchantOverview)
+      const CustomerOverview = ref(Logic.Dashboard.CustomerOverview)
+      const TransactionOverview = ref(Logic.Dashboard.TransactionOverview)
+
 
       const getBgColor = (index: number, inverse = false) => {
         const isEven = index % 2 === 0

@@ -1,7 +1,11 @@
 <template>
   <dashboard-layout>
     <AppTableContainer>
-      <AppTableHeader title="Withdrawals" rightSideClass="flex-1">
+      <AppTableHeader
+        title="Withdrawals"
+        rightSideClass="flex-1"
+        :showRightSide="showRightSide"
+      >
         <div class="w-full flex items-center h-full">
           <div
             class="flex-1 w-full border-r px-4 h-full border-r flex items-center"
@@ -21,7 +25,7 @@
         </div>
       </AppTableHeader>
 
-      <AppWithdrawalTable :withdrawals="WithdrawalsPaginator.data" />
+      <AppWithdrawalTable :transactions="WithdrawalsPaginator.data" />
     </AppTableContainer>
   </dashboard-layout>
 </template>
@@ -55,6 +59,7 @@
           method: "GetWithdrawals",
           params: [10, 1],
           requireAuth: true,
+          ignoreProperty: true,
         },
       ],
     },
@@ -66,6 +71,10 @@
       const WithdrawalsPaginator = ref(Logic.Transaction.WithdrawalsPaginator)
 
       // computed
+      const showRightSide = computed(
+        () => WithdrawalsPaginator.value.data.length >= 1
+      )
+
       const filteredCustomers = computed(() => {
         const query = searchQuery.value.trim().toLowerCase()
         if (!query) return WithdrawalsPaginator.value.data
@@ -87,18 +96,6 @@
         Logic.Transaction.GetWithdrawals(itemsPerPage, newPage)
       }
 
-      const suspendCustomer = (merchantId: number) => {
-        console.log("merchantId", merchantId)
-      }
-
-      const restoreCustomer = (merchantId: string) => {
-        console.log("merchantId", merchantId)
-      }
-
-      const deleteCustomer = (merchantId: string) => {
-        console.log("merchantId", merchantId)
-      }
-
       // Watch property
       onMounted(() => {
         Logic.User.watchProperty("WithdrawalsPaginator", WithdrawalsPaginator)
@@ -108,10 +105,8 @@
         searchQuery,
         filteredCustomers,
         WithdrawalsPaginator,
-        suspendCustomer,
+        showRightSide,
         handlePageChange,
-        restoreCustomer,
-        deleteCustomer,
       }
     },
   })
