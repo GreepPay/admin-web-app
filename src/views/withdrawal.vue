@@ -20,6 +20,7 @@
             <AppPagination
               :pagination="WithdrawalsPaginator.paginatorInfo"
               @update:page="handlePageChange"
+              :loading="isFetching"
             />
           </div>
         </div>
@@ -67,6 +68,8 @@
       // constants
       const itemsPerPage = 10
 
+      const isFetching = ref(false)
+      const currentPageNumber = ref(1)
       const searchQuery = ref("")
       const WithdrawalsPaginator = ref(Logic.Transaction.WithdrawalsPaginator)
 
@@ -74,7 +77,6 @@
       const showRightSide = computed(
         () => WithdrawalsPaginator.value.data.length >= 1
       )
-
       const filteredCustomers = computed(() => {
         const query = searchQuery.value.trim().toLowerCase()
         if (!query) return WithdrawalsPaginator.value.data
@@ -93,15 +95,28 @@
 
       // Methods for handling merchant actions
       const handlePageChange = (newPage: number) => {
-        Logic.Transaction.GetWithdrawals(itemsPerPage, newPage)
+        currentPageNumber.value = newPage
+        handleFetch()
+      }
+      const handleFetch = async () => {
+        isFetching.value = true
+        await Logic.Transaction.GetWithdrawals(
+          itemsPerPage,
+          currentPageNumber.value
+        )
+        isFetching.value = false
       }
 
       // Watch property
       onMounted(() => {
-        Logic.User.watchProperty("WithdrawalsPaginator", WithdrawalsPaginator)
+        Logic.Transaction.watchProperty(
+          "WithdrawalsPaginator",
+          WithdrawalsPaginator
+        )
       })
 
       return {
+        isFetching,
         searchQuery,
         filteredCustomers,
         WithdrawalsPaginator,

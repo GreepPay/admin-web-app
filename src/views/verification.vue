@@ -20,6 +20,7 @@
             <app-pagination
               :pagination="VerificationPaginator.paginatorInfo"
               @update:page="handlePageChange"
+              :loading="isFetching"
             />
           </div>
         </div>
@@ -68,49 +69,45 @@
 
       // computed
       const showRightSide = computed(
-        () => VerificationPaginator.value.data.length >= 1
+        () => VerificationPaginator.value?.data?.length >= 1
       )
 
       // reactives
       const searchQuery = ref("")
-      const currentPage = ref(1)
-      const totalItems = ref(50)
+      const isFetching = ref(false)
+      const currentPageNumber = ref(1)
       const VerificationPaginator = ref(
         Logic.Verification.VerificationPaginator
       )
 
       // Methods for handling merchant actions
       const handlePageChange = (newPage: number) => {
-        Logic.Verification.GetVerificationRequests(itemsPerPage, newPage)
+        currentPageNumber.value = newPage
+        handleFetch()
       }
-
-      const suspendCustomer = (merchantId: number) => {
-        console.log("merchantId", merchantId)
-      }
-
-      const restoreCustomer = (merchantId: string) => {
-        console.log("merchantId", merchantId)
-      }
-
-      const deleteCustomer = (merchantId: string) => {
-        console.log("merchantId", merchantId)
+      const handleFetch = async () => {
+        isFetching.value = true
+        await Logic.Verification.GetVerificationRequests(
+          itemsPerPage,
+          currentPageNumber.value
+        )
+        isFetching.value = false
       }
 
       onMounted(() => {
-        Logic.User.watchProperty("VerificationPaginator", VerificationPaginator)
+        Logic.Verification.watchProperty(
+          "VerificationPaginator",
+          VerificationPaginator
+        )
       })
 
       return {
         searchQuery,
-        currentPage,
         itemsPerPage,
-        totalItems,
+        isFetching,
         VerificationPaginator,
-        handlePageChange,
-        deleteCustomer,
-        restoreCustomer,
-        suspendCustomer,
         showRightSide,
+        handlePageChange,
       }
     },
   })

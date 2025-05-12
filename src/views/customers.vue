@@ -18,6 +18,7 @@
             <app-pagination
               :pagination="CustomerProfilePaginator.paginatorInfo"
               @update:page="handlePageChange"
+              :loading="isFetching"
             />
           </div>
         </div>
@@ -71,23 +72,22 @@
 
       // reactives
       const searchQuery = ref("")
+      const isFetching = ref(false)
+      const currentPageNumber = ref(1)
       const CustomerProfilePaginator = ref(Logic.User.CustomerProfilePaginator)
 
       // Methods for handling merchant actions
       const handlePageChange = (newPage: number) => {
-        Logic.User.GetCustomerProfiles(itemsPerPage, newPage)
+        currentPageNumber.value = newPage
+        handleFetch()
       }
-
-      const suspendCustomer = (merchantId: number) => {
-        console.log("merchantId", merchantId)
-      }
-
-      const restoreCustomer = (merchantId: string) => {
-        console.log("merchantId", merchantId)
-      }
-
-      const deleteCustomer = (merchantId: string) => {
-        console.log("merchantId", merchantId)
+      const handleFetch = async () => {
+        isFetching.value = true
+        await Logic.User.GetCustomerProfiles(
+          itemsPerPage,
+          currentPageNumber.value
+        )
+        isFetching.value = false
       }
 
       // Watch property
@@ -99,12 +99,10 @@
       })
       return {
         searchQuery,
+        isFetching,
         CustomerProfilePaginator,
         showRightSide,
-        suspendCustomer,
         handlePageChange,
-        restoreCustomer,
-        deleteCustomer,
       }
     },
   })

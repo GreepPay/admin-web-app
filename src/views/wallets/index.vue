@@ -21,15 +21,17 @@
             <app-search
               placeholder="Search..."
               @update:search="searchQuery = $event"
-              @search="handleSearch"
-              @clear-search="handleClearSearch"
             />
+
+            <!-- @search="handleSearch"
+              @clear-search="handleClearSearch" -->
           </div>
 
           <div class="h-full px-6">
             <app-pagination
               :pagination="WalletPaginator.paginatorInfo"
               @update:page="handlePageChange"
+              :loading="isFetching"
             />
           </div>
         </div>
@@ -39,7 +41,6 @@
         :wallets="WalletPaginator.data"
         @see-history="seeHistory"
       />
-      <!-- @freeze="freezeUser" -->
     </app-table-container>
   </dashboard-layout>
 </template>
@@ -105,6 +106,8 @@
       //
       const WalletPaginator = ref(Logic.Wallet.WalletPaginator)
       const searchQuery = ref("")
+      const isFetching = ref(false)
+      const currentPageNumber = ref(1)
       const selectedFilterOption = ref("all_time")
       const activeTab = ref("all")
       const showDetails = ref(false)
@@ -113,16 +116,25 @@
         Logic.Common.GoToRoute(`/wallets/${wallet.id}`)
       }
 
+      // const handlePageChange = (newPage: number) => {
+      //   Logic.Wallet.GetWallets(itemsPerPage, newPage)
+      // }
       const handlePageChange = (newPage: number) => {
-        Logic.Wallet.GetWallets(itemsPerPage, newPage)
+        currentPageNumber.value = newPage
+        handleFetch()
+      }
+      const handleFetch = async () => {
+        isFetching.value = true
+        await Logic.Wallet.GetWallets(itemsPerPage, currentPageNumber.value)
+        isFetching.value = false
       }
 
-      const handleSearch = (searchQuery: string) => {
-        Logic.Transaction.GetTransactions(itemsPerPage, 1, searchQuery)
-      }
-      const handleClearSearch = () => {
-        Logic.Transaction.GetTransactions(itemsPerPage, 1, "")
-      }
+      // const handleSearch = (searchQuery: string) => {
+      //   Logic.Transaction.GetTransactions(itemsPerPage, 1, searchQuery)
+      // }
+      // const handleClearSearch = () => {
+      //   Logic.Transaction.GetTransactions(itemsPerPage, 1, "")
+      // }
 
       // Watch property
       onMounted(() => {
@@ -131,6 +143,7 @@
 
       return {
         searchQuery,
+        isFetching,
         showRightSide,
         activeTab,
         selectedFilterOption,
@@ -139,8 +152,8 @@
         WalletPaginator,
         seeHistory,
         handlePageChange,
-        handleSearch,
-        handleClearSearch,
+        // handleSearch,
+        // handleClearSearch,
       }
     },
   })

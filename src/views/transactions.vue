@@ -1,7 +1,7 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header rightSideClass="flex-1" :showRightSide="showRightSide">
+      <app-table-header rightSideClass="flex-1">
         <template #title>
           <div class="flex items-center space-x-4">
             <h2
@@ -23,10 +23,11 @@
             />
           </div>
 
-          <div class="h-full px-6">
+          <div class="h-full px-6" v-if="showRightSide">
             <app-pagination
               :pagination="TransactionsPaginator.paginatorInfo"
               @update:page="handlePageChange"
+              :loading="isFetching"
             />
           </div>
         </div>
@@ -137,32 +138,32 @@
 
       //
       const TransactionsPaginator = ref(Logic.Transaction.TransactionsPaginator)
+      const searchQuery = ref("")
       const activeTab = ref("recents")
       const showDetails = ref(false)
-      const selectedTransaction = ref<Transaction | null>(null)
-
-      const searchQuery = ref("")
+      const isFetching = ref(false)
       const currentPageNumber = ref(1)
+      const selectedTransaction = ref<Transaction | null>(null)
 
       const handleView = (transaction: Transaction) => {
         selectedTransaction.value = transaction
         showDetails.value = true
       }
 
-      const handleClearSearch = () => {
-        handleSearch(true)
-      }
+      const handleClearSearch = () => handleSearch(true)
       const handlePageChange = (newPage: number) => {
         currentPageNumber.value = newPage
         handleSearch(false)
       }
-      const handleSearch = (newSearch: Boolean) => {
+      const handleSearch = async (newSearch: Boolean) => {
+        isFetching.value = true
         const currentPage = newSearch ? 1 : currentPageNumber.value
-        Logic.Transaction.GetTransactions(
+        await Logic.Transaction.GetTransactions(
           itemsPerPage,
           currentPage,
           searchQuery.value
         )
+        isFetching.value = false
       }
 
       // Watch property
@@ -181,6 +182,7 @@
         TransactionsPaginator,
         selectedTransaction,
         showRightSide,
+        isFetching,
         handlePageChange,
         handleView,
         mapTransactionToPaymentDetails,

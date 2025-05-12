@@ -170,9 +170,8 @@
 
       const getBgColor = (index: number, inverse = false) => {
         const isEven = index % 2 === 0
-        if (inverse) {
-          return isEven ? "bg-white" : "bg-gray-two-40"
-        }
+
+        if (inverse) return isEven ? "bg-white" : "bg-gray-two-40"
         return !isEven ? "bg-white" : "bg-gray-two-40"
       }
 
