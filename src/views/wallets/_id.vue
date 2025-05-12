@@ -35,10 +35,7 @@
         </div> -->
       </app-table-header>
 
-      <app-table-header
-        title-class="flex-1 !py-0 !px-0"
-        :showRightSide="showRightSide"
-      >
+      <app-table-header title-class="flex-1 !py-0 !px-0">
         <template #title>
           <div class="w-full">
             <app-search
@@ -48,10 +45,11 @@
           </div>
         </template>
 
-        <div class="h-full px-6">
+        <div class="h-full px-6" v-if="showRightSide">
           <app-pagination
             :pagination="WalletHistoryPaginator.paginatorInfo"
             @update:page="handlePageChange"
+            :loading="isFetching"
           />
         </div>
       </app-table-header>
@@ -121,10 +119,22 @@
         Logic.Transaction.WalletHistoryPaginator
       )
       const searchQuery = ref("")
-      const showDetails = ref(false)
+      const isFetching = ref(false)
+      const currentPageNumber = ref(1)
 
+      // Methods for handling merchant actions
       const handlePageChange = (newPage: number) => {
-        Logic.Transaction.GetWalletHistory(wallet_id, itemsPerPage, newPage)
+        currentPageNumber.value = newPage
+        handleFetch()
+      }
+      const handleFetch = async () => {
+        isFetching.value = true
+        await Logic.Transaction.GetWalletHistory(
+          wallet_id,
+          itemsPerPage,
+          currentPageNumber.value
+        )
+        isFetching.value = false
       }
 
       // Watch property
@@ -139,9 +149,9 @@
         Logic,
         searchQuery,
         itemsPerPage,
-        showDetails,
         WalletHistoryPaginator,
         showRightSide,
+        isFetching,
         handlePageChange,
       }
     },
