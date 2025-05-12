@@ -6,9 +6,8 @@
           <app-dropdown
             :options="filterOptions"
             placeholder="Assign role"
-            @update:modelValue="
-              ($event) => Logic.Dashboard.GetGeneralOverview($event)
-            "
+            :loading="isGeneralOverviewLoading"
+            @update:modelValue="handleGeneralOverviewUpdate"
           />
         </app-table-header>
 
@@ -29,9 +28,8 @@
           <app-dropdown
             :options="filterOptions"
             placeholder="Assign role"
-            @update:modelValue="
-              ($event) => Logic.Dashboard.GetMerchantOverview($event)
-            "
+            :loading="isMerchantOverviewLoading"
+            @update:modelValue="handleMerchantOverviewUpdate"
           />
         </app-table-header>
 
@@ -52,9 +50,8 @@
           <app-dropdown
             :options="filterOptions"
             placeholder="Assign role"
-            @update:modelValue="
-              ($event) => Logic.Dashboard.GetCustomerOverview($event)
-            "
+            :loading="isCustomerOverviewLoading"
+            @update:modelValue="handleCustomerOverviewUpdate"
           />
         </app-table-header>
 
@@ -75,9 +72,8 @@
           <app-dropdown
             :options="filterOptions"
             placeholder="Assign role"
-            @update:modelValue="
-              ($event) => Logic.Dashboard.GetTransactionOverview($event)
-            "
+            :loading="isTransactionOverviewLoading"
+            @update:modelValue="handleTransactionOverviewUpdate"
           />
         </app-table-header>
 
@@ -161,12 +157,16 @@
         { label: "Monthly", value: "monthly" },
       ]
 
-      // 
+      //
       const GeneralOverview = ref(Logic.Dashboard.GeneralOverview)
       const MerchantOverview = ref(Logic.Dashboard.MerchantOverview)
       const CustomerOverview = ref(Logic.Dashboard.CustomerOverview)
       const TransactionOverview = ref(Logic.Dashboard.TransactionOverview)
 
+      const isGeneralOverviewLoading = ref(false)
+      const isMerchantOverviewLoading = ref(false)
+      const isCustomerOverviewLoading = ref(false)
+      const isTransactionOverviewLoading = ref(false)
 
       const getBgColor = (index: number, inverse = false) => {
         const isEven = index % 2 === 0
@@ -207,6 +207,30 @@
           })
       }
 
+      const handleGeneralOverviewUpdate = async (range: string) => {
+        isGeneralOverviewLoading.value = true
+        await Logic.Dashboard.GetGeneralOverview(range)
+        isGeneralOverviewLoading.value = false
+      }
+
+      const handleMerchantOverviewUpdate = async (range: string) => {
+        isMerchantOverviewLoading.value = true
+        await Logic.Dashboard.GetMerchantOverview(range)
+        isMerchantOverviewLoading.value = false
+      }
+
+      const handleCustomerOverviewUpdate = async (range: string) => {
+        isCustomerOverviewLoading.value = true
+        await Logic.Dashboard.GetCustomerOverview(range)
+        isCustomerOverviewLoading.value = false
+      }
+
+      const handleTransactionOverviewUpdate = async (range: string) => {
+        isTransactionOverviewLoading.value = true
+        await Logic.Dashboard.GetTransactionOverview(range)
+        isTransactionOverviewLoading.value = false
+      }
+
       onMounted(() => {
         Logic.Dashboard.watchProperty("GeneralOverview", GeneralOverview)
         Logic.Dashboard.watchProperty("MerchantOverview", MerchantOverview)
@@ -220,12 +244,20 @@
       return {
         Logic,
         filterOptions,
+        isGeneralOverviewLoading,
+        isMerchantOverviewLoading,
+        isCustomerOverviewLoading,
+        isTransactionOverviewLoading,
         GeneralOverview,
         MerchantOverview,
         CustomerOverview,
         TransactionOverview,
         getBgColor,
         mapOverviewData,
+        handleGeneralOverviewUpdate,
+        handleMerchantOverviewUpdate,
+        handleCustomerOverviewUpdate,
+        handleTransactionOverviewUpdate,
       }
     },
   })

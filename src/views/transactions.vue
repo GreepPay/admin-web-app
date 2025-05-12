@@ -149,13 +149,15 @@
         showDetails.value = true
       }
 
-      const handleClearSearch = () => handleSearch(true)
+      const handleClearSearch = () => {
+        handleSearch(true)
+      }
       const handlePageChange = (newPage: number) => {
         currentPageNumber.value = newPage
         handleSearch(false)
       }
       const handleSearch = (newSearch: Boolean) => {
-        const currentPage = !newSearch ? currentPageNumber.value : 1
+        const currentPage = newSearch ? 1 : currentPageNumber.value
         Logic.Transaction.GetTransactions(
           itemsPerPage,
           currentPage,

@@ -61,8 +61,6 @@
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
 
-  
-
   export default defineComponent({
     components: {
       AppWalletTable,

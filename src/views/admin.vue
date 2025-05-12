@@ -16,6 +16,7 @@
 
           <div class="h-full px-6">
             <app-pagination
+              :loading="isFetchingAdmin"
               :pagination="AdminProfilePaginator.paginatorInfo"
               @update:page="handlePageChange"
             />
@@ -136,7 +137,7 @@
 
       // computed
       const showRightSide = computed(
-        () => AdminProfilePaginator.value.data.length  >= 1
+        () => AdminProfilePaginator.value.data.length >= 1
       )
 
       // reactives
@@ -144,6 +145,7 @@
       const formComponent = ref<any>(null)
       const currentPageNumber = ref(1)
       const loadingState = ref(false)
+      const isFetchingAdmin = ref(false)
       const searchQuery = ref("")
       const selectedRole = ref(null)
       const formData = reactive({ email: "" })
@@ -152,26 +154,29 @@
 
       // Methods for handling merchant  actions
       const makeNewAdmin = async () => {
-        // formData.email = ""
-        resetForm()
-        if (!selectedRole) return
-        loadingState.value = true
-
         const state = formComponent.value?.validate()
-        if (!formData.email) return
+        if (!state) return
+        loadingState.value = true
 
         try {
           await Logic.Auth.SignUp(formData.email)
-          Logic.User.GetAdminProfiles(itemsPerPage, currentPageNumber.value)
+          isFetchingAdmin.value = true
+          await Logic.User.GetAdminProfiles(
+            itemsPerPage,
+            currentPageNumber.value
+          )
         } catch (err) {
         } finally {
           loadingState.value = false
+          isFetchingAdmin.value = false
         }
       }
 
-      const handlePageChange = (newPage: number) => {
+      const handlePageChange = async (newPage: number) => {
         currentPageNumber.value = newPage
-        Logic.User.GetAdminProfiles(itemsPerPage, currentPageNumber.value)
+        isFetchingAdmin.value = true
+        await Logic.User.GetAdminProfiles(itemsPerPage, currentPageNumber.value)
+        isFetchingAdmin.value = false
       }
 
       const changeAdminRole = async (adminRoleData: any) => {
@@ -188,10 +193,6 @@
 
       const removeAdmin = (amin: any) => {
         console.log("amin", amin)
-      }
-
-      const resetForm = () => {
-        formData.email = ""
       }
 
       // Watch property
@@ -211,6 +212,7 @@
         formComponent,
         loadingState,
         showRightSide,
+        isFetchingAdmin,
         makeNewAdmin,
         removeAdmin,
         changeAdminRole,
