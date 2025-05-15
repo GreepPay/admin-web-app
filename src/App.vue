@@ -1,4 +1,5 @@
 <template>
+  <!-- <AppLoader v-if="loaderSetup.show" :setup="loaderSetup" /> -->
   <router-view />
 </template>
 
@@ -6,13 +7,16 @@
   import { defineComponent, onMounted, ref } from "vue"
   import { useRoute, useRouter } from "vue-router"
   import { Logic } from "@greep/logic"
-  import { SetFrontendLogic } from "@greep/ui-components"
+  import { AppLoader, SetFrontendLogic } from "@greep/ui-components"
 
   export default defineComponent({
     name: "App",
+    component: { AppLoader },
     setup() {
       const router: any = useRouter()
       const route = useRoute()
+
+      const loaderSetup = ref(Logic.Common.loaderSetup)
 
       // Set routers
       Logic.Common.SetRouter(router)
@@ -33,26 +37,25 @@
 
       const handleMountActions = () => {
         const currentAuthUser = Logic.Auth.AuthUser
-
         // If user is authenticated
         if (currentAuthUser) {
           Logic.Auth.GetAuthUser()
-          if (localStorage.getItem("auth_passcode")) {
-            Logic.Common.GoToRoute("/auth/login")
-          }
         } else {
-          if (!window.location.pathname.includes("/auth")) {
-            Logic.Common.GoToRoute("/auth/signup")
-          }
+          // Logic.Common.GoToRoute("/auth/login")
+          // const isAuthPage = window.location.pathname.includes("/auth")
+          // if (!isAuthPage) Logic.Common.GoToRoute("/auth/signup")
+          // else Logic.Common.GoToRoute("/auth/login")
         }
       }
 
       onMounted(() => {
-        // handleMountActions()
-        // Register watchers
+        handleMountActions()
+
+        // watchers
+        // Logic.Common.watchProperty("loaderSetup", loaderSetup)
       })
 
-      return {}
+      return { loaderSetup }
     },
   })
 </script>

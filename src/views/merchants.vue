@@ -1,7 +1,11 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header title="Merchants" right-side-class="flex-1">
+      <app-table-header
+        title="Merchants"
+        right-side-class="flex-1"
+        :showRightSide="showRightSide"
+      >
         <div class="w-full flex items-center h-full">
           <div
             class="flex-1 w-full border-r px-4 h-full border-r flex items-center"
@@ -14,17 +18,16 @@
 
           <div class="h-full px-6">
             <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="MerchantProfilePaginator.paginatorInfo"
               @update:page="handlePageChange"
+              :loading="isFetching"
             />
           </div>
         </div>
       </app-table-header>
 
       <app-merchant-table
-        :merchants="filteredMerchants"
+        :merchants="MerchantProfilePaginator.data"
         @suspend="suspendMerchant"
         @restore="restoreMerchant"
         @delete="deleteMerchant"
@@ -34,7 +37,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, computed } from "vue"
+  import { defineComponent, ref, onMounted, computed } from "vue"
   import {
     AppMerchantTable,
     AppTableHeader,
@@ -42,15 +45,7 @@
     AppPagination,
     AppSearch,
   } from "@greep/ui-components"
-
-  interface Merchant {
-    id: number
-    name: string
-    avatar: string
-    joinedDate: string
-    joinedTime: string
-    status: "active" | "suspended"
-  }
+  import { Logic } from "@greep/logic"
 
   export default defineComponent({
     components: {
@@ -60,96 +55,60 @@
       AppPagination,
       AppSearch,
     },
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "User",
+          property: "MerchantProfilePaginator",
+          method: "GetMerchantProfiles",
+          params: [10, 1],
+          requireAuth: true,
+        },
+      ],
+    },
+
     setup() {
-      const merchants = ref<Merchant[]>([
-        {
-          id: 1,
-          name: "Arlene McCoy",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 7,
-          name: "Cameron Williamson",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 8,
-          name: "Kristin Watson",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 9,
-          name: "Mcrory Adams",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-        {
-          id: 10,
-          name: "Stalline Dre",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-          status: "active",
-        },
-      ])
+      // constants
+      const itemsPerPage = 10
 
+      // computed
+      const showRightSide = computed(
+        () => MerchantProfilePaginator.value.data.length >= 1
+      )
+
+      // reactives
       const searchQuery = ref("")
-      const currentPage = ref(1)
-      const itemsPerPage = ref(10)
-      const totalItems = ref(50) // Total number of merchants
+      const isFetching = ref(false)
+      const currentPageNumber = ref(1)
+      const MerchantProfilePaginator = ref(Logic.User.MerchantProfilePaginator)
 
-      const filteredMerchants = computed(() => {
-        if (!searchQuery.value) return merchants.value
+      // Methods for handling merchant actions
+      const handlePageChange = (newPage: number) => {
+        currentPageNumber.value = newPage
+        handleFetch()
+      }
+      const handleFetch = async () => {
+        isFetching.value = true
+        await Logic.User.GetMerchantProfiles(
+          itemsPerPage,
+          currentPageNumber.value
+        )
+        isFetching.value = false
+      }
 
-        const query = searchQuery.value.toLowerCase()
-        return merchants.value.filter((merchant) =>
-          merchant.name.toLowerCase().includes(query)
+      onMounted(() => {
+        Logic.User.watchProperty(
+          "MerchantProfilePaginator",
+          MerchantProfilePaginator
         )
       })
 
-      const suspendMerchant = (merchantId: number) => {
-        const merchant = merchants.value.find((m) => m.id === merchantId)
-        if (merchant) {
-          merchant.status = "suspended"
-        }
-      }
-
-      const restoreMerchant = (merchantId: number) => {
-        const merchant = merchants.value.find((m) => m.id === merchantId)
-        if (merchant) {
-          merchant.status = "active"
-        }
-      }
-
-      const deleteMerchant = (merchantId: number) => {
-        merchants.value = merchants.value.filter((m) => m.id !== merchantId)
-      }
-
-      const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
-      }
-
       return {
-        merchants,
         searchQuery,
-        currentPage,
+        isFetching,
         itemsPerPage,
-        totalItems,
-        filteredMerchants,
-        suspendMerchant,
-        restoreMerchant,
-        deleteMerchant,
+        MerchantProfilePaginator,
+        showRightSide,
         handlePageChange,
       }
     },

@@ -74,18 +74,14 @@
       const formComponent = ref<any>(null)
 
       const formData = reactive({
-        email: "ufelidan@gmail.com",
-        password: "12345678",
+        email: "admin1@greep.io",
+        password: "securePass123",
       })
 
       const loadingState = ref(false)
-      const showStateSelector = ref(true)
-      const stateIsoCode = ref("")
-      const countryCode = ref("")
 
       const handleSignIn = async () => {
         const state = formComponent.value?.validate()
-        console.log("state:::", state)
 
         if (state) {
           loadingState.value = true
@@ -95,26 +91,10 @@
           }
 
           try {
-            const response = await Logic.Auth.SignIn(true)
-            console.log("response", response)
+            await Logic.Auth.SignIn(true)
+            await Logic.Auth.GetAuthUser()
 
-            // await Logic.Auth.GetAuthUser()
-
-            // Check if passcode has been set
-            // if (localStorage.getItem("auth_passcode")) {
-            //   Logic.Common.GoToRoute("/")
-            // } else {
-            //   // Save auth email and pass
-            //   // localStorage.setItem(
-            //   //   "auth_email",
-            //   //   Logic.Auth.SignInPayload?.email || ""
-            //   // )
-            //   // localStorage.setItem(
-            //   //   "auth_pass",
-            //   //   Logic.Auth.SignInPayload?.password || ""
-            //   // )
-            //   // Logic.Common.GoToRoute("/auth/set-passcode")
-            // }
+            Logic.Common.GoToRoute("/dashboards")
           } catch (err) {
           } finally {
             loadingState.value = false
@@ -126,9 +106,6 @@
         FormValidations,
         Logic,
         formData,
-        stateIsoCode,
-        countryCode,
-        showStateSelector,
         formComponent,
         loadingState,
         handleSignIn,

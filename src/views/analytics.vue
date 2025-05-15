@@ -1,7 +1,12 @@
 <template>
   <dashboard-layout>
     <AppTableContainer>
-      <AppTableHeader title="Transaction Volume" titleClass="flex-1">
+      <!-- title="Transaction Volume" -->
+      <AppTableHeader
+        title="Transaction Analytics"
+        titleClass="flex-1"
+        :showRightSide="false"
+      >
         <AppDropdown
           v-model="selectedFilterOption"
           :options="dropdownOptions"
@@ -23,7 +28,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from "vue"
+  import { defineComponent, ref, onMounted } from "vue"
   import ApexCharts from "vue3-apexcharts"
   import {
     AppDropdown,
@@ -31,6 +36,7 @@
     AppStatCard,
     AppTableContainer,
   } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
 
   export default defineComponent({
     name: "TransactionVolumePage",
@@ -40,6 +46,19 @@
       AppStatCard,
       AppTableContainer,
       apexchart: ApexCharts,
+    },
+
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "Dashboard",
+          property: "AnalyticsData",
+          method: "GetAnalyticsData",
+          params: [],
+          requireAuth: true,
+          ignoreProperty: true,
+        },
+      ],
     },
     setup() {
       const selectedFilterOption = ref("all_time")
@@ -52,10 +71,44 @@
         { label: "This Year", value: "yearly" },
       ]
 
+      const AnalyticsData = ref(Logic.Dashboard.AnalyticsData)
+
       const series = ref([
         {
-          name: "Desktops",
-          data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
+          name: "Money In",
+          data: [
+            AnalyticsData.value.daily.moneyIn,
+            AnalyticsData.value.weekly.moneyIn,
+            AnalyticsData.value.monthly.moneyIn,
+            AnalyticsData.value.allTime.moneyIn,
+          ],
+        },
+        {
+          name: "Money Out",
+          data: [
+            AnalyticsData.value.daily.moneyOut,
+            AnalyticsData.value.weekly.moneyOut,
+            AnalyticsData.value.monthly.moneyOut,
+            AnalyticsData.value.allTime.moneyOut,
+          ],
+        },
+        {
+          name: "Transactions",
+          data: [
+            AnalyticsData.value.daily.transactions,
+            AnalyticsData.value.weekly.transactions,
+            AnalyticsData.value.monthly.transactions,
+            AnalyticsData.value.allTime.transactions,
+          ],
+        },
+        {
+          name: "Volume",
+          data: [
+            AnalyticsData.value.daily.volume,
+            AnalyticsData.value.weekly.volume,
+            AnalyticsData.value.monthly.volume,
+            AnalyticsData.value.allTime.volume,
+          ],
         },
       ])
 
@@ -74,28 +127,21 @@
         },
         grid: {
           row: {
-            colors: ["#f3f3f3", "transparent"],
+            colors: ["white", "transparent"],
             opacity: 0.5,
           },
           clums: {
-            colors: ["#f3f3f3", "transparent"],
+            colors: ["white", "transparent"],
             opacity: 0.5,
           },
         },
         xaxis: {
-          categories: [
-            "Apr 1",
-            "Apr 2",
-            "Apr 3",
-            "Apr 4",
-            "Apr 5",
-            "Apr 6",
-            "Apr 7",
-            "Apr 8",
-            "Apr 9",
-            "Apr 10",
-          ],
+          categories: ["Daily", "Weekly", "Monthly", "All Time"],
         },
+      })
+
+      onMounted(() => {
+        Logic.Dashboard.watchProperty("AnalyticsData", AnalyticsData)
       })
 
       return {
@@ -103,6 +149,7 @@
         dropdownOptions,
         series,
         chartOptions,
+        AnalyticsData,
       }
     },
   })

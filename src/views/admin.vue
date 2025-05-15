@@ -1,7 +1,11 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header title="Admin Users" right-side-class="flex-1">
+      <app-table-header
+        title="Admin Users"
+        right-side-class="flex-1"
+        :showRightSide="showRightSide"
+      >
         <div class="flex-1 flex items-center h-full">
           <div class="flex-1 px-4 h-full border-r flex items-center">
             <app-search
@@ -12,62 +16,77 @@
 
           <div class="h-full px-6">
             <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :loading="isFetchingAdmin"
+              :pagination="AdminProfilePaginator.paginatorInfo"
               @update:page="handlePageChange"
             />
           </div>
         </div>
       </app-table-header>
 
-      <app-table-header title-class="!py-0 flex-1" right-side-class="!p-0">
-        <template #title>
-          <div class="flex-1 h-full">
-            <app-text-field
-              type="email"
-              placeholder="Enter email"
-              ref="email"
-              name="Email"
-              v-model="formData.email"
-              :show-validation-message="false"
-              custom-class="border-none !text-green"
-              input-style="!font-normal"
-            />
-          </div>
-        </template>
+      <!-- only for super admins -->
+      <template v-if="AuthUser && AuthUser?.role?.name === 'SuperAdmin'">
+        <app-table-header title-class="!py-0 flex-1" right-side-class="!p-0">
+          <template #title>
+            <div class="flex-1 h-full">
+              <app-form-wrapper
+                ref="formComponent"
+                :parent-refs="parentRefs"
+                class="w-full flex flex-col space-y-[20px] h-full"
+              >
+                <app-text-field
+                  type="email"
+                  placeholder="Enter email"
+                  ref="email"
+                  name="Email"
+                  v-model="formData.email"
+                  custom-class="border-none !text-green"
+                  :rules="[
+                    FormValidations.RequiredRule,
+                    FormValidations.EmailRule,
+                  ]"
+                  :show-validation-message="false"
+                  input-style="!font-normal"
+                />
+              </app-form-wrapper>
+            </div>
+          </template>
 
-        <div class="flex-1 flex items-center h-full">
-          <div class="h-full">
-            <app-dropdown
-              v-model="selectedRole"
-              :options="roleOptions"
-              placeholder="Assign role"
-            />
-          </div>
+          <div class="flex-1 flex items-center h-full">
+            <div class="h-full">
+              <app-dropdown
+                v-model="selectedRole"
+                :options="roleOptions"
+                placeholder="Assign role"
+              />
+            </div>
 
-          <div class="h-full">
-            <app-button
-              variant="primary"
-              custom-class="w-full !py-4.5 !bg-black !rounded-none"
-            >
-              Make Admin
-            </app-button>
+            <div class="h-full">
+              <app-button
+                variant="primary"
+                custom-class="w-full !py-4.5 !bg-black !rounded-none"
+                @click="makeNewAdmin"
+                :disabled="!selectedRole || !formData.email"
+                :loading="loadingState"
+              >
+                Make Admin
+              </app-button>
+            </div>
           </div>
-        </div>
-      </app-table-header>
+        </app-table-header>
+      </template>
 
       <app-admin-table
-        :admins="admins"
-        @change-role="changeRole"
-        @remove="deleteCustomer"
+        :admins="AdminProfilePaginator.data"
+        @change-role="changeAdminRole"
+        @remove="removeAdmin"
       />
     </app-table-container>
   </dashboard-layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, reactive } from "vue"
+  import { defineComponent, ref, onMounted, reactive, computed } from "vue"
   import {
     AppAdminTable,
     AppTableHeader,
@@ -77,19 +96,9 @@
     AppTextField,
     AppButton,
     AppDropdown,
+    AppFormWrapper,
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
-
-  type AdminRole = "super-admin" | "admin" | "moderator" | "user" | null
-
-  interface Admin {
-    id: number
-    name: string
-    avatar: string
-    role: AdminRole
-    joinedDate: string
-    joinedTime: string
-  }
 
   export default defineComponent({
     name: "AdminUsersPage",
@@ -102,87 +111,122 @@
       AppTextField,
       AppButton,
       AppDropdown,
+      AppFormWrapper,
+    },
+
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "User",
+          property: "AdminProfilePaginator",
+          method: "GetAdminProfiles",
+          params: [10, 1],
+          ignoreProperty: true,
+          requireAuth: true,
+        },
+      ],
     },
     setup() {
-      const admins = ref<Admin[]>([
-        {
-          id: 1,
-          name: "Ralph Edwards",
-          avatar: "https://i.pravatar.cc/100?img=1",
-          role: "super-admin",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-        {
-          id: 2,
-          name: "Floyd Miles",
-          avatar: "https://i.pravatar.cc/100?img=2",
-          role: "admin",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-        {
-          id: 3,
-          name: "Arlene McCoy",
-          avatar: "https://i.pravatar.cc/100?img=3",
-          role: "moderator",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-        {
-          id: 332,
-          name: "Arlene McCoy",
-          avatar: "https://i.pravatar.cc/100?img=8",
-          role: "user",
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-        {
-          id: 23,
-          name: "Arlene McCoy",
-          avatar: "https://i.pravatar.cc/100?img=6",
-          role: null,
-          joinedDate: "03/11/2024",
-          joinedTime: "19:06",
-        },
-      ])
-
+      // constants
       const FormValidations = Logic.Form
-      const formComponent = ref<any>(null)
-      const searchQuery = ref("")
-      const currentPage = ref(1)
-      const itemsPerPage = ref(10)
-      const totalItems = ref(50) // Total number of admins
-      const formData = reactive({
-        email: "",
-      })
-
-      const selectedRole = ref(null)
-
+      const itemsPerPage = 10
       const roleOptions = [
-        { label: "Super Admin", value: "super-admin" },
-        { label: "Admin", value: "admin" },
-        { label: "Moderator", value: "moderator" },
-        { label: "User", value: "user" },
+        { label: "Super Admin", value: "SuperAdmin" },
+        { label: "Admin", value: "Admin" },
       ]
 
-      const changeRole = (user: Admin) => {
-        console.log(user)
-      }
-      const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
+      // computed
+      const showRightSide = computed(
+        () => AdminProfilePaginator.value.data.length >= 1
+      )
+
+      // reactives
+      const AuthUser = ref(Logic.Auth.AuthUser)
+      const formComponent = ref<any>(null)
+      const currentPageNumber = ref(1)
+      const loadingState = ref(false)
+      const isFetchingAdmin = ref(false)
+      const searchQuery = ref("")
+      const selectedRole = ref(null)
+      const formData = reactive({ email: "" })
+
+      const AdminProfilePaginator = ref(Logic.User.AdminProfilePaginator)
+
+      // Methods for handling merchant  actions
+      const makeNewAdmin = async () => {
+        const state = formComponent.value?.validate()
+        if (!state) return
+        loadingState.value = true
+
+        try {
+          await Logic.Auth.SignUp(formData.email)
+          isFetchingAdmin.value = true
+          await Logic.User.GetAdminProfiles(
+            itemsPerPage,
+            currentPageNumber.value
+          )
+        } catch (err) {
+        } finally {
+          loadingState.value = false
+          isFetchingAdmin.value = false
+        }
       }
 
+      const handlePageChange = async (newPage: number) => {
+        currentPageNumber.value = newPage
+        isFetchingAdmin.value = true
+        await Logic.User.GetAdminProfiles(itemsPerPage, currentPageNumber.value)
+        isFetchingAdmin.value = false
+      }
+
+      const changeAdminRole = async (adminRoleData: any) => {
+        Logic.User.UpdateUserRolePayload = {
+          uuid: adminRoleData.uuid,
+          role: adminRoleData.role,
+        }
+
+        try {
+          await Logic.User.UpdateUserRole()
+          Logic.User.GetAdminProfiles(itemsPerPage, currentPageNumber.value)
+        } catch (err) {}
+      }
+
+      const removeAdmin = (amin: any) => {
+        console.log("amin", amin)
+      }
+
+      // Watch property
+      onMounted(() => {
+        Logic.User.watchProperty("AdminProfilePaginator", AdminProfilePaginator)
+        Logic.Auth.watchProperty("AuthUser", AuthUser)
+      })
+
       return {
-        admins,
         searchQuery,
-        currentPage,
         formData,
         selectedRole,
         roleOptions,
-        changeRole,
+        AdminProfilePaginator,
+        AuthUser,
+        FormValidations,
+        formComponent,
+        loadingState,
+        showRightSide,
+        isFetchingAdmin,
+        makeNewAdmin,
+        removeAdmin,
+        changeAdminRole,
         handlePageChange,
       }
+    },
+    data() {
+      return {
+        parentRefs: [],
+      }
+    },
+    mounted() {
+      const parentRefs: any = this.$refs
+      this.parentRefs = parentRefs
     },
   })
 </script>

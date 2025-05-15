@@ -5,6 +5,7 @@
     </div>
 
     <main class="flex-1 bg-white">
+      <AppLoader v-if="loaderSetup.show" :setup="loaderSetup" />
       <dashboard-header />
 
       <div class="container mx-auto p-6">
@@ -15,14 +16,24 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent } from "vue"
+  import { defineComponent, ref, onMounted } from "vue"
   import { Sidebar, DashboardHeader } from "../components/Layouts/index"
+  import { Logic } from "@greep/logic"
+  import { AppLoader } from "@greep/ui-components"
 
   export default defineComponent({
     name: "AppDashboardLayout",
-    components: { Sidebar, DashboardHeader },
+    components: { Sidebar, DashboardHeader, AppLoader },
     setup() {
-      return {}
+      const AuthUser = ref(Logic.Auth.AuthUser)
+      const loaderSetup = ref(Logic.Common.loaderSetup)
+
+      onMounted(() => {
+        // watchers
+        Logic.Common.watchProperty("loaderSetup", loaderSetup)
+      })
+
+      return { AuthUser, loaderSetup }
     },
   })
 </script>

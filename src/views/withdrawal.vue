@@ -1,7 +1,11 @@
 <template>
   <dashboard-layout>
     <AppTableContainer>
-      <AppTableHeader title="Withdrawals" rightSideClass="flex-1">
+      <AppTableHeader
+        title="Withdrawals"
+        rightSideClass="flex-1"
+        :showRightSide="showRightSide"
+      >
         <div class="w-full flex items-center h-full">
           <div
             class="flex-1 w-full border-r px-4 h-full border-r flex items-center"
@@ -14,27 +18,21 @@
 
           <div class="h-full px-6">
             <AppPagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="WithdrawalsPaginator.paginatorInfo"
               @update:page="handlePageChange"
+              :loading="isFetching"
             />
           </div>
         </div>
       </AppTableHeader>
 
-      <AppWithdrawalTable
-        :withdrawals="withdrawals"
-        @suspend="suspendMerchant"
-        @restore="restoreMerchant"
-        @delete="deleteMerchant"
-      />
+      <AppWithdrawalTable :transactions="WithdrawalsPaginator.data" />
     </AppTableContainer>
   </dashboard-layout>
 </template>
 
-<script setup lang="ts">
-  import { ref, computed, onMounted } from "vue"
+<script lang="ts">
+  import { defineComponent, ref, computed, onMounted } from "vue"
   import {
     AppWithdrawalTable,
     AppTableHeader,
@@ -42,57 +40,89 @@
     AppPagination,
     AppSearch,
   } from "@greep/ui-components"
+  import { Logic } from "@greep/logic"
 
-  interface Withdrawal {
-    id: number
-    name: string
-    avatar: string
-    amount: string
-    status: "active" | "suspended"
-  }
-  const withdrawals: Withdrawal[] = [
-    {
-      id: 1,
-      name: "Arlene McCoy",
-      avatar: "https://i.pravatar.cc/100?img=1",
-      amount: "$300",
-      status: "active",
+  export default defineComponent({
+    name: "WithdrawalsPage",
+    components: {
+      AppWithdrawalTable,
+      AppTableHeader,
+      AppTableContainer,
+      AppPagination,
+      AppSearch,
     },
-    {
-      id: 2,
-      name: "Floyd Miles",
-      avatar: "https://i.pravatar.cc/100?img=2",
-      amount: "$300",
-      status: "suspended",
-    },
-    {
-      id: 3,
-      name: "Ralph Edwards",
-      avatar: "https://i.pravatar.cc/100?img=3",
-      amount: "$300",
-      status: "active",
-    },
-    {
-      id: 4,
-      name: "Jerome Bell",
-      avatar: "https://i.pravatar.cc/100?img=4",
-      amount: "$300",
-      status: "suspended",
-    },
-    {
-      id: 5,
-      name: "Eleanor Pena",
-      avatar: "https://i.pravatar.cc/100?img=5",
-      amount: "$300",
-      status: "active",
-    },
-  ]
-  const searchQuery = ref("")
-  const currentPage = ref(1)
-  const itemsPerPage = ref(10)
-  const totalItems = ref(50)
 
-  const handlePageChange = (newPage: number) => {
-    currentPage.value = newPage
-  }
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "Transaction",
+          property: "WithdrawalsPaginator",
+          method: "GetWithdrawals",
+          params: [10, 1],
+          requireAuth: true,
+          ignoreProperty: true,
+        },
+      ],
+    },
+    setup() {
+      // constants
+      const itemsPerPage = 10
+
+      const isFetching = ref(false)
+      const currentPageNumber = ref(1)
+      const searchQuery = ref("")
+      const WithdrawalsPaginator = ref(Logic.Transaction.WithdrawalsPaginator)
+
+      // computed
+      const showRightSide = computed(
+        () => WithdrawalsPaginator.value.data.length >= 1
+      )
+      const filteredCustomers = computed(() => {
+        const query = searchQuery.value.trim().toLowerCase()
+        if (!query) return WithdrawalsPaginator.value.data
+
+        return WithdrawalsPaginator.value.data.filter((profile) => {
+          const { first_name, last_name } = profile.user
+          const fullName = `${first_name} ${last_name}`.toLowerCase()
+
+          return (
+            first_name.toLowerCase().includes(query) ||
+            last_name.toLowerCase().includes(query) ||
+            fullName.includes(query)
+          )
+        })
+      })
+
+      // Methods for handling merchant actions
+      const handlePageChange = (newPage: number) => {
+        currentPageNumber.value = newPage
+        handleFetch()
+      }
+      const handleFetch = async () => {
+        isFetching.value = true
+        await Logic.Transaction.GetWithdrawals(
+          itemsPerPage,
+          currentPageNumber.value
+        )
+        isFetching.value = false
+      }
+
+      // Watch property
+      onMounted(() => {
+        Logic.Transaction.watchProperty(
+          "WithdrawalsPaginator",
+          WithdrawalsPaginator
+        )
+      })
+
+      return {
+        isFetching,
+        searchQuery,
+        filteredCustomers,
+        WithdrawalsPaginator,
+        showRightSide,
+        handlePageChange,
+      }
+    },
+  })
 </script>

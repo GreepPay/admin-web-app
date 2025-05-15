@@ -1,7 +1,10 @@
 <template>
   <dashboard-layout>
     <app-table-container>
-      <app-table-header right-side-class="flex-1">
+      <app-table-header
+        right-side-class="flex-1"
+        :showRightSide="showRightSide"
+      >
         <template #title>
           <div class="flex items-center space-x-4">
             <h2
@@ -9,7 +12,7 @@
             >
               Wallets
             </h2>
-            <app-tabs :tabs="tabs" v-model:active-tab="activeTab" />
+            <!-- <app-tabs :tabs="tabs" v-model:active-tab="activeTab" /> -->
           </div>
         </template>
 
@@ -19,30 +22,31 @@
               placeholder="Search..."
               @update:search="searchQuery = $event"
             />
+
+            <!-- @search="handleSearch"
+              @clear-search="handleClearSearch" -->
           </div>
 
           <div class="h-full px-6">
             <app-pagination
-              :current-page="currentPage"
-              :items-per-page="10"
-              :total-items="125"
+              :pagination="WalletPaginator.paginatorInfo"
               @update:page="handlePageChange"
+              :loading="isFetching"
             />
           </div>
         </div>
       </app-table-header>
 
       <app-wallet-table
-        :users="filteredUsers"
+        :wallets="WalletPaginator.data"
         @see-history="seeHistory"
-        @freeze="freezeUser"
       />
     </app-table-container>
   </dashboard-layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref, computed } from "vue"
+  import { defineComponent, ref, computed, onMounted } from "vue"
   import {
     AppWalletTable,
     AppDropdown,
@@ -58,16 +62,6 @@
   } from "@greep/ui-components"
   import { Logic } from "@greep/logic"
 
-  type UserType = "Merchant" | "Customer"
-
-  interface WalletUser {
-    id: string
-    name: string
-    type: UserType
-    avatar?: string
-    balance: number
-  }
-
   export default defineComponent({
     components: {
       AppWalletTable,
@@ -82,83 +76,84 @@
       AppModal,
       AppTransactionDetails,
     },
+    middlewares: {
+      fetchRules: [
+        {
+          domain: "Wallet",
+          property: "WalletPaginator",
+          method: "GetWallets",
+          params: [10, 1],
+          requireAuth: true,
+          ignoreProperty: true,
+        },
+      ],
+    },
+
     setup() {
-      const selectedFilterOption = ref("all_time")
-      const activeTab = ref("all")
-      const showDetails = ref(false)
-
-      const dropdownOptions = [
-        { label: "All Time", value: "all_time" },
-        { label: "Today", value: "daily" },
-        { label: "This Week", value: "weekly" },
-        { label: "This Month", value: "monthly" },
-        { label: "This Year", value: "yearly" },
-      ]
-
+      // constants
+      const itemsPerPage = 10
       const tabs = [
         { key: "all", label: "All" },
         { key: "users", label: "Merchants" },
         { key: "customers", label: "Customers" },
       ]
 
-      const users = ref<WalletUser[]>([
-        {
-          id: "1",
-          name: "Arlene McCoy",
-          type: "Merchant",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          balance: 7400,
-        },
-        {
-          id: "2",
-          name: "Floyd Miles",
-          type: "Merchant",
-          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-          balance: 1380,
-        },
-      ])
+      // computed
+      const showRightSide = computed(
+        () => WalletPaginator.value.data.length >= 1
+      )
 
+      //
+      const WalletPaginator = ref(Logic.Wallet.WalletPaginator)
       const searchQuery = ref("")
-      const currentPage = ref(1)
-      const itemsPerPage = ref(10)
-      const totalItems = ref(50)
+      const isFetching = ref(false)
+      const currentPageNumber = ref(1)
+      const selectedFilterOption = ref("all_time")
+      const activeTab = ref("all")
+      const showDetails = ref(false)
 
-      const filteredUsers = computed(() => {
-        if (!searchQuery.value) return users.value
-        const query = searchQuery.value.toLowerCase()
-        return users.value.filter((user) =>
-          user.name.toLowerCase().includes(query)
-        )
+      const seeHistory = (wallet: any) => {
+        Logic.Common.GoToRoute(`/wallets/${wallet.id}`)
+      }
+
+      // const handlePageChange = (newPage: number) => {
+      //   Logic.Wallet.GetWallets(itemsPerPage, newPage)
+      // }
+      const handlePageChange = (newPage: number) => {
+        currentPageNumber.value = newPage
+        handleFetch()
+      }
+      const handleFetch = async () => {
+        isFetching.value = true
+        await Logic.Wallet.GetWallets(itemsPerPage, currentPageNumber.value)
+        isFetching.value = false
+      }
+
+      // const handleSearch = (searchQuery: string) => {
+      //   Logic.Transaction.GetTransactions(itemsPerPage, 1, searchQuery)
+      // }
+      // const handleClearSearch = () => {
+      //   Logic.Transaction.GetTransactions(itemsPerPage, 1, "")
+      // }
+
+      // Watch property
+      onMounted(() => {
+        Logic.Wallet.watchProperty("WalletPaginator", WalletPaginator)
       })
 
-      const seeHistory = (id: string) => {
-        console.log(id)
-        Logic.Common.GoToRoute(`/wallets/history`)
-      }
-
-      const handlePageChange = (newPage: number) => {
-        currentPage.value = newPage
-      }
-
-      const freezeUser = (merchantId: string) => {
-        users.value = users.value.filter((m) => m.id !== merchantId)
-      }
-
       return {
-        users,
         searchQuery,
-        currentPage,
-        itemsPerPage,
-        totalItems,
-        filteredUsers,
+        isFetching,
+        showRightSide,
         activeTab,
         selectedFilterOption,
-        dropdownOptions,
         tabs,
         showDetails,
+        WalletPaginator,
         seeHistory,
         handlePageChange,
-        freezeUser,
+        // handleSearch,
+        // handleClearSearch,
       }
     },
   })
